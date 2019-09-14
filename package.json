@@ -1,0 +1,24 @@
+{
+  "name": "wall-e",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.ts",
+  "scripts": {
+    "start": "node dist/app.js",
+    "dev": "nodemon src/app.ts",
+    "build": "tsc -p ."
+  },
+  "author": "Jannik66#0066",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.5.1",
+    "sqlite3": "^4.1.0",
+    "typeorm": "^0.2.18"
+  },
+  "devDependencies": {
+    "@types/node": "^12.7.3",
+    "nodemon": "^1.19.2",
+    "ts-node": "^8.3.0",
+    "typescript": "^3.5.3"
+  }
+}
