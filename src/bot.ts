@@ -5,6 +5,9 @@ import readyListener from './listeners/readyListener';
 import messageListener from './listeners/messageListener';
 import { BotDatabase } from './DBConnection';
 import { BotCommand, BotClient } from './customInterfaces';
+import { AudioPlayer } from './audioPlayer';
+import { Logger } from './logger';
+import { StatusMessages } from './statusMessages';
 
 export class WALLEBot implements BotClient {
     // Discord Client of the Bot
@@ -16,6 +19,12 @@ export class WALLEBot implements BotClient {
     // Bot SQLite Database
     private _BotDB: BotDatabase;
 
+    private _audioPlayer: AudioPlayer;
+
+    private _logger: Logger;
+
+    private _statusMessages: StatusMessages;
+
     // Listeners
     private _messageListener: messageListener;
     private _readyListener: readyListener;
@@ -26,9 +35,16 @@ export class WALLEBot implements BotClient {
             this._BotDB = BotDB;
         });
 
+        this._audioPlayer = new AudioPlayer();
+        this._logger = new Logger();
+        this._statusMessages = new StatusMessages();
+
         this._messageListener = new messageListener();
         this._readyListener = new readyListener();
 
+        this._audioPlayer.init(this);
+        this._logger.init(this);
+        this._statusMessages.init(this);
         this._messageListener.init(this);
         this._readyListener.init(this);
 
@@ -45,6 +61,18 @@ export class WALLEBot implements BotClient {
 
     public getDBConnection() {
         return this._BotDB;
+    }
+
+    public getAudioPlayer() {
+        return this._audioPlayer;
+    }
+
+    public getLogger() {
+        return this._logger;
+    }
+
+    public getStatusMessages() {
+        return this._statusMessages;
     }
 
     public getAllCommands() {
@@ -73,6 +101,9 @@ export class WALLEBot implements BotClient {
     }
 
     afterInit() {
+        this._audioPlayer.afterInit();
+        this._logger.afterInit();
+        this._statusMessages.afterInit();
         for (let command of this._commands) {
             if (command[1].information.hasAfterInit) {
                 command[1].afterInit()

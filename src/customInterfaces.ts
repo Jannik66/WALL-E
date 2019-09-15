@@ -1,10 +1,16 @@
 import { Client, Collection, Message } from "discord.js";
 import { BotDatabase } from "./DBConnection";
+import { AudioPlayer } from "./audioPlayer";
+import { Logger } from "./logger";
+import { StatusMessages } from "./statusMessages";
 
 export interface BotClient {
     getClient(): Client,
     getDBConnection(): BotDatabase,
     getAllCommands(): Collection<string, BotCommand>,
+    getAudioPlayer(): AudioPlayer,
+    getLogger(): Logger,
+    getStatusMessages(): StatusMessages,
     start(): void,
     afterInit(): void
 }
@@ -36,6 +42,10 @@ export interface BotCommand {
  */
 export interface BotConfig {
     logChannelID: string,
+    wallEChannelID: string,
+    nowPlayingMessageID: string,
+    songLeaderboardMessageID: string,
+    djLeaderboardMessageID: string,
     botToken: string,
     prefix: string,
     botID: string,

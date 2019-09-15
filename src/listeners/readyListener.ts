@@ -9,7 +9,7 @@ export default class readyListener {
     }
 
     public async evalReady() {
-        this.BotClient.afterInit();
         console.log(`Logged in as ${this.BotClient.getClient().user.tag}`);
+        this.BotClient.afterInit();
     }
 }

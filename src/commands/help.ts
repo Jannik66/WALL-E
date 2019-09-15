@@ -1,5 +1,5 @@
 import { BotCommand, BotClient } from '../customInterfaces';
-import { Message, Collection, RichEmbed, Client } from 'discord.js';
+import { Message, Collection, MessageEmbed, Client } from 'discord.js';
 
 export default class helpCommand implements BotCommand {
     information: BotCommand['information'] = {
@@ -27,12 +27,11 @@ export default class helpCommand implements BotCommand {
     }
 
     public execute(msg: Message, args: string[], prefix: string) {
-        let embed = new RichEmbed();
+        let embed = new MessageEmbed();
         const command = this.commands.get(args[0]) || this.commands.find(cmd => cmd.information.aliases && cmd.information.aliases.includes(args[0]));
         embed.setColor(0xEDD5BD);
-        embed.setAuthor(`${this.client.user.username}`, `${this.client.user.avatarURL}`);
-        embed.setFooter(msg.member.displayName, msg.author.avatarURL);
-        embed.setTimestamp(new Date());
+        embed.setAuthor(`${this.client.user.username}`, `${this.client.user.avatarURL()}`);
+        embed.setFooter('Pridefully serving the BDC-Server.');
         if (command) {
             embed.setTitle(`Commandinfo \`${command.information.name}\``);
             embed.addField(`Description`, `${command.information.description}`);
@@ -66,7 +65,7 @@ export default class helpCommand implements BotCommand {
         } else {
             embed.setTitle(`Commands`);
             embed.setDescription(`To get detailed information about a command, type \`${prefix}help {command}\``);
-            let fields:  {
+            let fields: {
                 [key: string]: string
             } = {};
             for (const command of this.commands) {
@@ -78,7 +77,7 @@ export default class helpCommand implements BotCommand {
             }
 
             for (const key in fields) {
-                embed.addField(`:arrow_forward:${key}:arrow_backward:`, fields[key]);
+                embed.addField(`►${key}◄`, fields[key]);
             }
             msg.channel.send(embed);
         }
