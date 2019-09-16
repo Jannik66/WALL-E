@@ -29,8 +29,10 @@ export default class skipCommand implements BotCommand {
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
+        /*
         this.audioPlayer.earrape(msg);
         msg.delete();
+        */
     }
 
     public afterInit() {

@@ -1,7 +1,6 @@
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
 import { AudioPlayer } from '../audioPlayer';
-import { Logger } from '../logger';
 
 export default class skipCommand implements BotCommand {
     information: BotCommand['information'] = {

@@ -79,6 +79,10 @@ export class Logger {
         this.statusMessages.updateDJLeaderboard();
     }
 
+    public logError(msg: Message, errorString: string) {
+        this.logChannel.send(`${msg.author.toString()}\n${errorString}`);
+    }
+
     public afterInit() {
         this.logChannel = this.client.channels.get(config.logChannelID) as TextChannel;
         this.songRepsitory = this.BotClient.getDBConnection().getSongsEventRepository();

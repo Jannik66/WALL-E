@@ -23,18 +23,25 @@ export default class leaveCommand implements BotCommand {
 
     audioPlayer: AudioPlayer;
 
+    logger: Logger;
+
     public initCommand(bot: BotClient) {
         this.BotClient = bot;
         this.client = this.BotClient.getClient();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
-        this.audioPlayer.leave(msg);
+        if (!msg.guild.member(this.client.user).voice.channel) {
+            this.logger.logError(msg, ':no_entry_sign: I\'m not in a voice channel.');
+        } else {
+            this.audioPlayer.leave(msg);
+        }
         msg.delete();
     }
 
     public afterInit() {
         this.audioPlayer = this.BotClient.getAudioPlayer();
+        this.logger = this.BotClient.getLogger();
     }
 
 }

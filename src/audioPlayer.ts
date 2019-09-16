@@ -49,13 +49,9 @@ export class AudioPlayer {
     }
 
     public leave(msg: Message) {
-        if (this.dispatcher && this.queue.length > 0) {
-            this.queue = [];
-            this.connection.disconnect();
-            this.logger.logLeave(msg);
-        } else {
-            // TODO: Log Skip error.
-        }
+        msg.guild.member(this.client.user).voice.channel.leave();
+        this.queue = [];
+        this.logger.logLeave(msg);
     }
 
     public earrape(msg: Message) {
