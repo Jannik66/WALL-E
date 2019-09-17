@@ -22,6 +22,12 @@ export class Logger {
         this.client = this.BotClient.getClient();
     }
 
+    public logHelp(msg: Message, helpEmbed: MessageEmbed) {
+        this.logChannel.send(`${msg.author.toString()}`).then(() => {
+            this.logChannel.send(helpEmbed);
+        });
+    }
+
     public logSong(msg: Message, songInfo: { name: string, id: string }) {
         let embed = new MessageEmbed();
         embed.setColor(0x007BFF);
@@ -53,19 +59,28 @@ export class Logger {
         this.logChannel.send(embed);
     }
 
-    public logEarrape(msg: Message, status: number) {
+    public logPause(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
         embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
         embed.setTimestamp(new Date());
 
-        if (status === 0) {
-            embed.setTitle(':ear: Disabled earrape.');
-        } else {
-            embed.setTitle(':ear: Enabled earrape.');
-        }
-
+        embed.setTitle(':pause_button: Paused');
         this.logChannel.send(embed);
+    }
+
+    public logResume(msg: Message) {
+        let embed = new MessageEmbed();
+        embed.setColor(0x28A745);
+        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setTimestamp(new Date());
+
+        embed.setTitle(':arrow_forward: Resumed');
+        this.logChannel.send(embed);
+    }
+
+    public logError(msg: Message, errorString: string) {
+        this.logChannel.send(`${msg.author.toString()}\n${errorString}`);
     }
 
     public async saveSong(msg: Message, songInfo: { name: string, id: string }) {
@@ -79,13 +94,9 @@ export class Logger {
         this.statusMessages.updateDJLeaderboard();
     }
 
-    public logError(msg: Message, errorString: string) {
-        this.logChannel.send(`${msg.author.toString()}\n${errorString}`);
-    }
-
     public afterInit() {
         this.logChannel = this.client.channels.get(config.logChannelID) as TextChannel;
-        this.songRepsitory = this.BotClient.getDBConnection().getSongsEventRepository();
+        this.songRepsitory = this.BotClient.getDBConnection().getSongsRepository();
         this.statusMessages = this.BotClient.getStatusMessages();
     }
 

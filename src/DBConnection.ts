@@ -2,6 +2,7 @@ import { ConnectionOptions, createConnection, Connection, Repository } from 'typ
 import config from './config';
 import { Songs } from './entities/songs';
 
+// database options
 const options: ConnectionOptions = {
     type: 'sqlite',
     database: `${config.rootPath}/database/WALLE.db`,
@@ -11,25 +12,31 @@ const options: ConnectionOptions = {
 
 export class BotDatabase {
 
-    connection: Connection;
+    private _connection: Connection;
 
-    songsRepository: Repository<Songs>;
+    private _songsRepository: Repository<Songs>;
 
     public async initConnection() {
-        this.connection = await createConnection(options);
-        await this.connection.synchronize();
+        // init connection to database
+        this._connection = await createConnection(options);
 
-        this.songsRepository = this.connection.getRepository(Songs);
+        // check if all tables are correct and generate scaffolding
+        await this._connection.synchronize();
+
+        // save reposiotry to property
+        this._songsRepository = this._connection.getRepository(Songs);
 
         return this;
     }
 
+    // getter for the database connection
     public getConnection() {
-        return this.connection;
+        return this._connection;
     }
 
-    public getSongsEventRepository() {
-        return this.songsRepository;
+    // getter for the Songs Repository
+    public getSongsRepository() {
+        return this._songsRepository;
     }
 
 }

@@ -5,7 +5,7 @@ import youtubedl from 'youtube-dl';
 import { Logger } from '../logger';
 
 export default class playCommand implements BotCommand {
-    information: BotCommand['information'] = {
+    public information: BotCommand['information'] = {
         id: 1,
         name: 'play',
         category: 'Music',
@@ -18,17 +18,17 @@ export default class playCommand implements BotCommand {
         examples: ['play https://youtu.be/GMb02tAqDRM']
     }
 
-    BotClient: BotClient;
+    private _botClient: BotClient;
 
-    client: Client;
+    private _client: Client;
 
-    audioPlayer: AudioPlayer;
+    private _audioPlayer: AudioPlayer;
 
-    logger: Logger;
+    private _logger: Logger;
 
-    public initCommand(bot: BotClient) {
-        this.BotClient = bot;
-        this.client = this.BotClient.getClient();
+    public initCommand(botClient: BotClient) {
+        this._botClient = botClient;
+        this._client = this._botClient.getClient();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
@@ -38,15 +38,15 @@ export default class playCommand implements BotCommand {
         let videoID: string;
         // check if user is in a voice channel
         if (!msg.member.voice.channel) {
-            this.logger.logError(msg, ':no_entry_sign: Please join a voice channel.');
+            this._logger.logError(msg, ':no_entry_sign: Please join a voice channel.');
 
             // check if user and bot are in the same voice channel
-        } else if (msg.guild.member(this.client.user).voice.channel && msg.guild.member(this.client.user).voice.channel !== msg.member.voice.channel) {
-            this.logger.logError(msg, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
+        } else if (msg.guild.member(this._client.user).voice.channel && msg.guild.member(this._client.user).voice.channel !== msg.member.voice.channel) {
+            this._logger.logError(msg, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
 
             // if youtube regex is isvalid
         } else if (!videoRegex) {
-            this.logger.logError(msg, ':no_entry_sign: Please provide a valid youtube link.');
+            this._logger.logError(msg, ':no_entry_sign: Please provide a valid youtube link.');
         } else {
             videoID = videoRegex[5];
             // if regex conatins a videoID
@@ -54,16 +54,16 @@ export default class playCommand implements BotCommand {
                 msg.react('🔎');
                 youtubedl.getInfo(videoID, [], async (err, info: any) => {
                     if (err) {
-                        this.logger.logError(msg, ':no_entry_sign: Youtube video not found.');
+                        this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
                         return;
                     }
 
-                    this.audioPlayer.addVideo(msg, { name: info.title, requester: msg.author.id, id: info.id });
-                    this.logger.logSong(msg, { name: info.title, id: info.id });
+                    this._audioPlayer.addVideo(msg, { name: info.title, requester: msg.author.id, id: info.id });
+                    this._logger.logSong(msg, { name: info.title, id: info.id });
                     msg.delete();
                 });
             } else {
-                this.logger.logError(msg, ':no_entry_sign: Please provide a valid youtube link.');
+                this._logger.logError(msg, ':no_entry_sign: Please provide a valid youtube link.');
             }
         }
         // if no video is beeing searched, delete the message
@@ -73,8 +73,8 @@ export default class playCommand implements BotCommand {
     }
 
     public afterInit() {
-        this.audioPlayer = this.BotClient.getAudioPlayer();
-        this.logger = this.BotClient.getLogger();
+        this._audioPlayer = this._botClient.getAudioPlayer();
+        this._logger = this._botClient.getLogger();
     }
 
 }

@@ -39,7 +39,7 @@ export class StatusMessages {
     }
 
     public async afterInit() {
-        this.songsRepository = this.BotClient.getDBConnection().getSongsEventRepository();
+        this.songsRepository = this.BotClient.getDBConnection().getSongsRepository();
         this.messageChannel = this.client.channels.get(config.wallEChannelID) as TextChannel;
 
         await this.messageChannel.messages.fetch();
@@ -70,7 +70,7 @@ export class StatusMessages {
     }
 
     public removeSongPlaying() {
-        this.nowPlayingMessage.edit(`:no_entry_sign: No Song playing...`);
+        this.client.user.setActivity();
     }
 
     public async updateSongLeaderboard() {

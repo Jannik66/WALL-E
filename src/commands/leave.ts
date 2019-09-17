@@ -4,7 +4,7 @@ import { AudioPlayer } from '../audioPlayer';
 import { Logger } from '../logger';
 
 export default class leaveCommand implements BotCommand {
-    information: BotCommand['information'] = {
+    public information: BotCommand['information'] = {
         id: 3,
         name: 'leave',
         category: 'Music',
@@ -17,31 +17,33 @@ export default class leaveCommand implements BotCommand {
         examples: ['leave']
     }
 
-    BotClient: BotClient;
+    private _botClient: BotClient;
 
-    client: Client;
+    private _client: Client;
 
-    audioPlayer: AudioPlayer;
+    private _audioPlayer: AudioPlayer;
 
-    logger: Logger;
+    private _logger: Logger;
 
-    public initCommand(bot: BotClient) {
-        this.BotClient = bot;
-        this.client = this.BotClient.getClient();
+    public initCommand(botClient: BotClient) {
+        this._botClient = botClient;
+        this._client = this._botClient.getClient();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
-        if (!msg.guild.member(this.client.user).voice.channel) {
-            this.logger.logError(msg, ':no_entry_sign: I\'m not in a voice channel.');
+        // check if bot is in a voice channel
+        if (!msg.guild.member(this._client.user).voice.channel) {
+            this._logger.logError(msg, ':no_entry_sign: I\'m not in a voice channel.');
         } else {
-            this.audioPlayer.leave(msg);
+            // leave voice channel and clear queue
+            this._audioPlayer.leave(msg);
         }
         msg.delete();
     }
 
     public afterInit() {
-        this.audioPlayer = this.BotClient.getAudioPlayer();
-        this.logger = this.BotClient.getLogger();
+        this._audioPlayer = this._botClient.getAudioPlayer();
+        this._logger = this._botClient.getLogger();
     }
 
 }

@@ -40,11 +40,11 @@ export class AudioPlayer {
     }
 
     public skip(msg: Message) {
-        if (this.dispatcher && this.queue.length > 0) {
+        if (this.dispatcher) {
             this.dispatcher.end();
             this.logger.logSkip(msg);
         } else {
-            // TODO: Log Skip error.
+            this.logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
         }
     }
 
@@ -54,30 +54,27 @@ export class AudioPlayer {
         this.logger.logLeave(msg);
     }
 
-    public earrape(msg: Message) {
+    public pause(msg: Message) {
         if (this.dispatcher) {
-            if (this.dispatcher.volume === 0.2) {
-                this.dispatcher.setVolume(10000);
-                this.logger.logEarrape(msg, 1);
+            if (this.dispatcher.paused) {
+                this.dispatcher.resume();
+                this.logger.logResume(msg);
             } else {
-                this.dispatcher.setVolume(0.2);
-                this.logger.logEarrape(msg, 0);
+                this.dispatcher.pause();
+                this.logger.logPause(msg);
             }
         } else {
-            // TODO: Log Earrape error.
+            this.logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
         }
+
     }
 
     private async initConnection(msg: Message) {
-        if (msg.member.voice) {
-            if (!this.connection) {
-                this.connection = await msg.member.voice.channel.join();
-                this.listenToConnectionEvents();
-            }
-            this.play(this.connection);
-        } else {
-            msg.channel.send('Join a voice channel');
+        if (!this.connection) {
+            this.connection = await msg.member.voice.channel.join();
+            this.listenToConnectionEvents();
         }
+        this.play(this.connection);
     }
 
     private async play(connection: VoiceConnection) {

@@ -1,8 +1,9 @@
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Collection, MessageEmbed, Client } from 'discord.js';
+import { Logger } from '../logger';
 
 export default class helpCommand implements BotCommand {
-    information: BotCommand['information'] = {
+    public information: BotCommand['information'] = {
         id: 0,
         name: 'help',
         category: 'Information',
@@ -15,23 +16,30 @@ export default class helpCommand implements BotCommand {
         examples: ['help', 'help addEvent']
     }
 
-    BotClient: BotClient;
+    private _botClient: BotClient;
 
-    client: Client;
+    private _client: Client;
 
-    commands: Collection<string, BotCommand>;
+    private _commands: Collection<string, BotCommand>;
 
-    public initCommand(bot: BotClient) {
-        this.BotClient = bot;
-        this.client = this.BotClient.getClient();
+    private _logger: Logger;
+
+    public initCommand(botClient: BotClient) {
+        this._botClient = botClient;
+        this._client = this._botClient.getClient();
     }
 
     public execute(msg: Message, args: string[], prefix: string) {
+        // set up embed
         let embed = new MessageEmbed();
-        const command = this.commands.get(args[0]) || this.commands.find(cmd => cmd.information.aliases && cmd.information.aliases.includes(args[0]));
         embed.setColor(0xEDD5BD);
-        embed.setAuthor(`${this.client.user.username}`, `${this.client.user.avatarURL()}`);
+        embed.setAuthor(`${this._client.user.username}`, `${this._client.user.avatarURL()}`);
         embed.setFooter('Pridefully serving the BDC-Server.');
+
+        // search for a command to display help for
+        const command = this._commands.get(args[0]) || this._commands.find(cmd => cmd.information.aliases && cmd.information.aliases.includes(args[0]));
+
+        // if a command was found, set up help message for it
         if (command) {
             embed.setTitle(`Commandinfo \`${command.information.name}\``);
             embed.addField(`Description`, `${command.information.description}`);
@@ -59,16 +67,20 @@ export default class helpCommand implements BotCommand {
                 }
                 embed.addField(`Example`, `${examples}`);
             }
-            msg.channel.send(embed);
+
+            // send help message to log channel
+            this._logger.logHelp(msg, embed);
         } else if (args[0]) {
-            msg.channel.send(`:no_entry_sign: Command not found.`);
+            // if no command was found, send error message
+            this._logger.logError(msg, ':no_entry_sign: Command not found.');
         } else {
+            // set up general help message
             embed.setTitle(`Commands`);
             embed.setDescription(`To get detailed information about a command, type \`${prefix}help {command}\``);
             let fields: {
                 [key: string]: string
             } = {};
-            for (const command of this.commands) {
+            for (const command of this._commands) {
                 if (fields[`${command[1].information.category}`]) {
                     fields[`${command[1].information.category}`] += `\n**${prefix}${command[1].information.name}**\n${command[1].information.description}`;
                 } else {
@@ -79,12 +91,14 @@ export default class helpCommand implements BotCommand {
             for (const key in fields) {
                 embed.addField(`►${key}◄`, fields[key]);
             }
-            msg.channel.send(embed);
+            this._logger.logHelp(msg, embed);
         }
+        msg.delete();
     }
 
     public afterInit() {
-        this.commands = this.BotClient.getAllCommands();
+        this._commands = this._botClient.getAllCommands();
+        this._logger = this._botClient.getLogger();
     }
 
 }

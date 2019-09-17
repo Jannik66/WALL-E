@@ -3,18 +3,18 @@ import { Message, Client } from 'discord.js';
 import { AudioPlayer } from '../audioPlayer';
 import { Logger } from '../logger';
 
-export default class skipCommand implements BotCommand {
+export default class pauseCommand implements BotCommand {
     public information: BotCommand['information'] = {
-        id: 2,
-        name: 'skip',
+        id: 4,
+        name: 'pause',
         category: 'Music',
-        description: 'Skips one song.',
+        description: 'Pauses or resumes the music.',
         argsRequired: false,
         hasAfterInit: true,
         admin: false,
-        aliases: ['s'],
-        usage: 'skip',
-        examples: ['skip']
+        aliases: ['pause'],
+        usage: 'pause',
+        examples: ['pause']
     }
 
     private _botClient: BotClient;
@@ -38,7 +38,8 @@ export default class skipCommand implements BotCommand {
         } else if (msg.guild.member(this._client.user).voice.channel && msg.guild.member(this._client.user).voice.channel !== msg.member.voice.channel) {
             this._logger.logError(msg, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
         } else {
-            this._audioPlayer.skip(msg);
+            // pause or resume song
+            this._audioPlayer.pause(msg);
         }
         msg.delete();
     }

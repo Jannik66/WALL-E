@@ -4,6 +4,9 @@ import { AudioPlayer } from "./audioPlayer";
 import { Logger } from "./logger";
 import { StatusMessages } from "./statusMessages";
 
+/**
+ * main client class
+ */
 export interface BotClient {
     getClient(): Client,
     getDBConnection(): BotDatabase,
@@ -31,8 +34,7 @@ export interface BotCommand {
         usage: string,
         examples: string[]
     },
-    BotClient: BotClient,
-    initCommand(BotClient: BotClient): void,
+    initCommand(botClient: BotClient): void,
     afterInit?(): void,
     execute(msg: Message, args: string[], prefix: string): void
 }
