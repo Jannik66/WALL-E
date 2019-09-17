@@ -48,31 +48,6 @@ export class StatusMessages {
         this.djsLeaderboardMessage = this.messageChannel.messages.get(config.djLeaderboardMessageID);
     }
 
-    public changeSongPlaying(queue: { name: string, requester: string, id: string }[]) {
-        let status = '';
-        status += `<:disc:622750303862915082> Now playing <:disc:622750303862915082>\n\n`;
-        status += `:dvd: **${queue[0].name}**\n`;
-        status += `https://youtu.be/${queue[0].id}`;
-
-        if (queue[1]) {
-            status += `\n\nComing up:\n`;
-            for (let song in queue) {
-                if (song === '1') {
-                    status += `:one: ${queue[parseInt(song)].name}\n`;
-                } else if (song === '2') {
-                    status += `:two: ${queue[parseInt(song)].name}\n`;
-                } else if (song === '3') {
-                    status += `:three: ${queue[parseInt(song)].name}\n`;
-                }
-            }
-        }
-        this.nowPlayingMessage.edit(status);
-    }
-
-    public removeSongPlaying() {
-        this.client.user.setActivity();
-    }
-
     public async updateSongLeaderboard() {
         let topSongs: { id: string, name: string, totalPlayed: number }[] = await this.songsRepository
             .createQueryBuilder('songs')
@@ -107,13 +82,49 @@ export class StatusMessages {
             .getRawMany();
         let djLeaderboard = `:tada:**The best DJ's**:tada:\n`;
         for (let topDj in topDjs) {
+            let topSong: { name: string, timesPlayed: number } = await this.songsRepository
+                .createQueryBuilder('songs')
+                .select('songs.name', 'name')
+                .addSelect('songs.timesPlayed', 'timesPlayed')
+                .orderBy('songs.timesPlayed', 'DESC')
+                .where(`songs.userID = ${topDjs[topDj].userID}`)
+                .getRawOne();
             let username = this.client.users.get(topDjs[parseInt(topDj)].userID).username;
-            djLeaderboard += `\n${this.numbers[parseInt(topDj)]} **${username}**\n:arrows_counterclockwise: ${topDjs[parseInt(topDj)].totalPlayed}\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
+            djLeaderboard += `\n${this.numbers[parseInt(topDj)]} **${username}**`;
+            djLeaderboard += `\n:arrows_counterclockwise: ${topDjs[parseInt(topDj)].totalPlayed}`;
+            djLeaderboard += `\n**__Most Played:__**\n${topSong.timesPlayed} :arrows_counterclockwise: _${topSong.name}_  `;
+            djLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
+
         }
         if (topDjs.length === 0) {
             djLeaderboard += 'No djs in the database...';
         }
         this.djsLeaderboardMessage.edit(djLeaderboard);
+    }
+
+    public changeSongPlaying(queue: { name: string, requester: string, id: string }[]) {
+        let status = '';
+        status += `<:disc:622750303862915082> Now playing <:disc:622750303862915082>\n\n`;
+        status += `:dvd: **${queue[0].name}**\n`;
+        status += `https://youtu.be/${queue[0].id}`;
+
+        if (queue[1]) {
+            status += `\n\nComing up:\n`;
+            for (let song in queue) {
+                if (song === '1') {
+                    status += `:one: ${queue[parseInt(song)].name}\n`;
+                } else if (song === '2') {
+                    status += `:two: ${queue[parseInt(song)].name}\n`;
+                } else if (song === '3') {
+                    status += `:three: ${queue[parseInt(song)].name}\n`;
+                }
+            }
+        }
+        this.nowPlayingMessage.edit(status);
+    }
+
+    public removeSongPlaying() {
+        this.client.user.setActivity();
     }
 
 }
