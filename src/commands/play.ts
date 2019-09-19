@@ -1,7 +1,7 @@
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
 import { AudioPlayer } from '../audioPlayer';
-import youtubedl from 'youtube-dl';
+import * as ytdl from 'ytdl-core';
 import { Logger } from '../logger';
 
 export default class playCommand implements BotCommand {
@@ -52,14 +52,14 @@ export default class playCommand implements BotCommand {
             // if regex conatins a videoID
             if (videoID) {
                 msg.react('🔎');
-                youtubedl.getInfo(videoID, [], async (err, info: any) => {
+                ytdl.getBasicInfo(videoID, (err, info) => {
                     if (err) {
                         this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
                         return;
                     }
 
-                    this._audioPlayer.addVideo(msg, { name: info.title, requester: msg.author.id, id: info.id });
-                    this._logger.logSong(msg, { name: info.title, id: info.id });
+                    this._audioPlayer.addVideo(msg, { name: info.title, requester: msg.author.id, id: info.video_id, length: info.length_seconds });
+                    this._logger.logSong(msg, { name: info.title, id: info.video_id });
                     msg.delete();
                 });
             } else {

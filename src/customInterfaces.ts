@@ -3,6 +3,7 @@ import { BotDatabase } from "./DBConnection";
 import { AudioPlayer } from "./audioPlayer";
 import { Logger } from "./logger";
 import { StatusMessages } from "./statusMessages";
+import { MusicQueue } from "./musicQueue";
 
 /**
  * main client class
@@ -14,6 +15,7 @@ export interface BotClient {
     getAudioPlayer(): AudioPlayer,
     getLogger(): Logger,
     getStatusMessages(): StatusMessages,
+    getMusicQueue(): MusicQueue,
     start(): void,
     afterInit(): void
 }
@@ -53,4 +55,14 @@ export interface BotConfig {
     botID: string,
     rootPath: string,
     DBLogging: boolean
+}
+
+/**
+ * Song for song queue
+ */
+export interface Song {
+    name: string,
+    requester: string,
+    id: string,
+    length: string
 }

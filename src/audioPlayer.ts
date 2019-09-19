@@ -1,12 +1,14 @@
-import { BotClient } from './customInterfaces';
+import { BotClient, Song } from './customInterfaces';
 import { Client, Message, StreamDispatcher, VoiceConnection } from 'discord.js';
-import youtubedl from 'youtube-dl';
-import { Readable } from 'stream';
+import * as ytdl from 'ytdl-core';
+// @ts-ignore
+import miniget from 'miniget';
 import { StatusMessages } from './statusMessages';
 import { Logger } from './logger';
+import fs from 'fs';
+import { MusicQueue } from './musicQueue';
 
 export class AudioPlayer {
-    queue: { name: string, requester: string, id: string }[] = [];
 
     BotClient: BotClient;
 
@@ -20,6 +22,8 @@ export class AudioPlayer {
 
     logger: Logger;
 
+    musicQueue: MusicQueue;
+
     public init(bot: BotClient) {
         this.BotClient = bot;
         this.client = this.BotClient.getClient();
@@ -28,14 +32,13 @@ export class AudioPlayer {
     public afterInit() {
         this.statusMessage = this.BotClient.getStatusMessages();
         this.logger = this.BotClient.getLogger();
+        this.musicQueue = this.BotClient.getMusicQueue();
     }
 
-    public addVideo(msg: Message, video: { name: string, requester: string, id: string }) {
-        this.queue.push(video);
-        if (this.queue.length === 1) {
+    public addVideo(msg: Message, video: { name: string, requester: string, id: string, length: string }) {
+        this.musicQueue.addToQueue(video);
+        if (this.musicQueue.getQueue().length === 1) {
             this.initConnection(msg);
-        } else {
-            this.statusMessage.changeSongPlaying(this.queue);
         }
     }
 
@@ -50,7 +53,7 @@ export class AudioPlayer {
 
     public leave(msg: Message) {
         msg.guild.member(this.client.user).voice.channel.leave();
-        this.queue = [];
+        this.musicQueue.clearQueue();
         this.logger.logLeave(msg);
     }
 
@@ -58,10 +61,12 @@ export class AudioPlayer {
         if (this.dispatcher) {
             if (this.dispatcher.paused) {
                 this.dispatcher.resume();
-                this.logger.logResume(msg);
+                this.logger.logResume(msg)
+                this.statusMessage.resume();
             } else {
                 this.dispatcher.pause();
                 this.logger.logPause(msg);
+                this.statusMessage.pause();
             }
         } else {
             this.logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
@@ -78,30 +83,38 @@ export class AudioPlayer {
     }
 
     private async play(connection: VoiceConnection) {
-        const stream = youtubedl(`https://youtu.be/${this.queue[0].id}`, [], {});
+        const info = await ytdl.getInfo(`https://youtu.be/${this.musicQueue.getQueue()[0].id}`);
+        const audioUrls = info.formats.filter((format) => {
+            return format.audioBitrate;
+        }).sort((a, b) => {
+            return b.audioBitrate - a.audioBitrate;
+        });
 
-        this.dispatcher = this.connection.play(stream as Readable, {
+        miniget(audioUrls[0].url).pipe(fs.createWriteStream('audioStream'));
+
+        await new Promise(done => setTimeout(done, 1000));
+
+        this.dispatcher = this.connection.play(fs.createReadStream('audioStream'), {
             bitrate: this.connection.channel.bitrate / 1000,
             volume: 0.2
         });
         this.dispatcher.on('start', () => {
-            this.statusMessage.changeSongPlaying(this.queue);
+
         });
         this.dispatcher.on('end', () => {
-            this.queue.shift();
-            if (this.queue.length > 0) {
+            this.musicQueue.proceedToNextSong();
+            if (this.musicQueue.getQueue().length > 0) {
                 this.play(connection);
             } else {
-                this.statusMessage.removeSongPlaying();
+                this.musicQueue.clearQueue();
             }
         });
     }
 
     private listenToConnectionEvents() {
         this.connection.on('disconnect', () => {
-            this.queue = [];
             this.connection = null;
-            this.statusMessage.removeSongPlaying();
+            this.musicQueue.clearQueue();
         })
     }
 }
