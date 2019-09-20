@@ -75,7 +75,9 @@ export class StatusMessages {
             if (this.messageUpdateJob) {
                 this.messageUpdateJob.cancel();
             }
-            this.songEndDate = moment().add(queue[0].length, 'seconds');
+            if (queue.length === 1) {
+                this.songEndDate = moment().add(queue[0].length, 'seconds');
+            }
             this._updateNowPlayingSong(queue);
         });
         this.musicQueue.on('proceededToNextSong', (queue: Array<Song>) => {
@@ -93,7 +95,6 @@ export class StatusMessages {
 
     public _updateNowPlayingSong(queue: Array<Song>) {
         this.playingNowString = '';
-        this.comingUpString = '';
 
         this.playingNowString += `<:disc:622750303862915082> Now playing <:disc:622750303862915082>\n\n`;
         this.playingNowString += `:dvd: **${queue[0].name}**\n`;
@@ -101,26 +102,12 @@ export class StatusMessages {
 
         this.songDuration = parseInt(queue[0].length);
 
-        this.comingUpString = '';
-
-        if (queue[1]) {
-            this.comingUpString += `\n\nComing up:\n`;
-            for (let song in queue) {
-                if (song === '1') {
-                    this.comingUpString += `:one: ${queue[parseInt(song)].name}\n`;
-                } else if (song === '2') {
-                    this.comingUpString += `:two: ${queue[parseInt(song)].name}\n`;
-                } else if (song === '3') {
-                    this.comingUpString += `:three: ${queue[parseInt(song)].name}\n`;
-                }
-            }
-        }
+        this.comingUpString = this.generateQueueString(queue);
 
         this.messageUpdateJob = schedule.scheduleJob('*/2 * * * * *', () => {
             let songProgress = '';
             let songPositionSeconds = this.songDuration - moment.duration(this.songEndDate.diff(moment())).asSeconds();
-            let songPositionString = `[${moment.duration(songPositionSeconds, 'seconds').minutes()}:`;
-            songPositionString += `${moment.duration(songPositionSeconds, 'seconds').seconds() > 9 ? moment.duration(songPositionSeconds, 'seconds').seconds() : '0' + moment.duration(songPositionSeconds, 'seconds').seconds()}] `;
+            let songPositionString = `[${this.formatDuration(moment.duration(songPositionSeconds, 'seconds'))}] `;
 
             songProgress += songPositionString;
 
@@ -135,13 +122,35 @@ export class StatusMessages {
             });
             songProgress += bar(songPositionSeconds);
 
-            let songDurationString = ` [${moment.duration(this.songDuration, 'seconds').minutes()}:`;
-            songDurationString += `${moment.duration(this.songDuration, 'seconds').seconds() > 9 ? moment.duration(this.songDuration, 'seconds').seconds() : '0' + moment.duration(this.songDuration, 'seconds').seconds()}]`;
+            let songDurationString = ` [${this.formatDuration(moment.duration(this.songDuration, 'seconds'))}]`;
             songProgress += songDurationString;
 
             let nowPlaying = this.playingNowString + '`' + songProgress + '`' + this.comingUpString;
             this.nowPlayingMessage.edit(nowPlaying);
         });
+    }
+
+    private formatDuration(duration: moment.Duration): string {
+        let formattedDuration = '';
+        formattedDuration += duration.hours() > 0 ? `${duration.hours()}:` : '';
+        formattedDuration += duration.hours() > 0 && duration.minutes() < 10 ? `0${duration.minutes()}:` : `${duration.minutes()}:`;
+        formattedDuration += duration.seconds() > 9 ? duration.seconds() : `0${duration.seconds()}`;
+
+        return formattedDuration;
+    }
+
+    private generateQueueString(queue: Array<Song>) {
+        let comingQueue = [...queue];
+        comingQueue.shift();
+        let duration = moment.duration(comingQueue.map((value) => parseInt(value.length)).reduce((a, b) => a + b, 0), 'seconds');
+        let durationString = this.formatDuration(duration);
+        let comingUpString = comingQueue.length > 0 ? `\n\n**Coming up** | Total Duration: **${durationString}**\n` : '';
+
+        for (let song of comingQueue) {
+            comingUpString += `\n▬ ${song.name} (**${this.formatDuration(moment.duration(parseInt(song.length), 'seconds'))}**)`;
+        }
+
+        return comingUpString;
     }
 
     public pause() {

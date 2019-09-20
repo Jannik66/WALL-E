@@ -71,7 +71,6 @@ export class AudioPlayer {
         } else {
             this.logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
         }
-
     }
 
     private async initConnection(msg: Message) {
@@ -79,32 +78,45 @@ export class AudioPlayer {
             this.connection = await msg.member.voice.channel.join();
             this.listenToConnectionEvents();
         }
-        this.play(this.connection);
+        this.loadVideoURL();
     }
 
-    private async play(connection: VoiceConnection) {
+    private async loadVideoURL() {
         const info = await ytdl.getInfo(`https://youtu.be/${this.musicQueue.getQueue()[0].id}`);
-        const audioUrls = info.formats.filter((format) => {
-            return format.audioBitrate;
-        }).sort((a, b) => {
-            return b.audioBitrate - a.audioBitrate;
+        const audioUrl = info.formats.find((format) => {
+            return format.audioBitrate === 160;
+        }).url;
+
+        if (audioUrl.startsWith('https://manifest')) {
+            miniget(audioUrl, (err: any, req: any, body: string) => {
+                let url = body.substring(body.indexOf('<BaseURL>') + 9, body.indexOf('</BaseURL>'));
+                this.play(url);
+            });
+        } else {
+            this.play(audioUrl);
+        }
+    }
+
+    private async play(Url: string) {
+        let audioStream = fs.createWriteStream('audioStream');
+        miniget(Url).pipe(audioStream);
+
+        await new Promise((done: any) => {
+            let interval = setInterval(() => {
+                if (audioStream.bytesWritten > 1) {
+                    clearInterval(interval);
+                    done();
+                }
+            }, 100);
         });
-
-        miniget(audioUrls[0].url).pipe(fs.createWriteStream('audioStream'));
-
-        await new Promise(done => setTimeout(done, 1000));
-
         this.dispatcher = this.connection.play(fs.createReadStream('audioStream'), {
             bitrate: this.connection.channel.bitrate / 1000,
-            volume: 0.2
-        });
-        this.dispatcher.on('start', () => {
-
+            volume: 0.05
         });
         this.dispatcher.on('end', () => {
             this.musicQueue.proceedToNextSong();
             if (this.musicQueue.getQueue().length > 0) {
-                this.play(connection);
+                this.loadVideoURL();
             } else {
                 this.musicQueue.clearQueue();
             }

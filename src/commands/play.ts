@@ -55,6 +55,12 @@ export default class playCommand implements BotCommand {
                 ytdl.getBasicInfo(videoID, (err, info) => {
                     if (err) {
                         this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
+                        msg.delete();
+                        return;
+                    }
+                    if (parseInt(info.length_seconds) > 39600) {
+                        this._logger.logError(msg, ':no_entry_sign: Sorry, but this fucking video is longer than 11 hours. Get some help.');
+                        msg.delete();
                         return;
                     }
 
