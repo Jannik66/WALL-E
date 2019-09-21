@@ -51,7 +51,7 @@ export default class playCommand implements BotCommand {
             videoID = videoRegex[5];
             // if regex conatins a videoID
             if (videoID) {
-                msg.react('🔎');
+                await msg.react('🔎');
                 ytdl.getBasicInfo(videoID, (err, info) => {
                     if (err) {
                         this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');

@@ -38,7 +38,9 @@ export class WALLEBot implements BotClient {
     // initial start method
     public async start() {
         // create new client
-        this._client = new Client();
+        this._client = new Client({
+            restRequestTimeout: 30000
+        });
 
         // init database connection
         await new BotDatabase().initConnection().then((BotDB) => {

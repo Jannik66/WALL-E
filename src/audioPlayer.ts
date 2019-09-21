@@ -84,7 +84,7 @@ export class AudioPlayer {
     private async loadVideoURL() {
         const info = await ytdl.getInfo(`https://youtu.be/${this.musicQueue.getQueue()[0].id}`);
         const audioUrl = info.formats.find((format) => {
-            return format.audioBitrate === 160;
+            return format.audioBitrate === 128;
         }).url;
 
         if (audioUrl.startsWith('https://manifest')) {
@@ -102,9 +102,10 @@ export class AudioPlayer {
         miniget(Url).pipe(audioStream);
 
         await new Promise((done: any) => {
-            let interval = setInterval(() => {
+            let interval = setInterval(async () => {
                 if (audioStream.bytesWritten > 1) {
                     clearInterval(interval);
+                    await new Promise(done => setTimeout(done, 500));
                     done();
                 }
             }, 100);
