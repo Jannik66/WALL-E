@@ -1,12 +1,13 @@
 import { ConnectionOptions, createConnection, Connection, Repository } from 'typeorm';
 import config from './config';
 import { Songs } from './entities/songs';
+import { VoiceStats } from './entities/voiceStats';
 
 // database options
 const options: ConnectionOptions = {
     type: 'sqlite',
     database: `${config.rootPath}/database/WALLE.db`,
-    entities: [Songs],
+    entities: [Songs, VoiceStats],
     logging: config.DBLogging
 }
 
@@ -15,6 +16,8 @@ export class BotDatabase {
     private _connection: Connection;
 
     private _songsRepository: Repository<Songs>;
+
+    private _voiceStatsRepository: Repository<VoiceStats>;
 
     public async initConnection() {
         // init connection to database
@@ -25,6 +28,7 @@ export class BotDatabase {
 
         // save reposiotry to property
         this._songsRepository = this._connection.getRepository(Songs);
+        this._voiceStatsRepository = this._connection.getRepository(VoiceStats);
 
         return this;
     }
@@ -37,6 +41,9 @@ export class BotDatabase {
     // getter for the Songs Repository
     public getSongsRepository() {
         return this._songsRepository;
+    }
+    public getVoiceStatsRepository() {
+        return this._voiceStatsRepository;
     }
 
 }

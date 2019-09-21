@@ -9,6 +9,7 @@ import { AudioPlayer } from './audio/audioPlayer';
 import { Logger } from './logger';
 import { StatusMessages } from './statusMessages';
 import { MusicQueue } from './audio/musicQueue';
+import voiceActivityListener from './listeners/voiceActivityListener';
 
 export class WALLEBot implements BotClient {
     // Discord Client of the Bot
@@ -34,6 +35,7 @@ export class WALLEBot implements BotClient {
     // Listeners
     private _messageListener: messageListener;
     private _readyListener: readyListener;
+    private _voiceActivityListener: voiceActivityListener;
 
     // initial start method
     public async start() {
@@ -56,6 +58,7 @@ export class WALLEBot implements BotClient {
         // create listnerers
         this._messageListener = new messageListener();
         this._readyListener = new readyListener();
+        this._voiceActivityListener = new voiceActivityListener();
 
         // init audioPlayer, logger and statusMessages
         this._audioPlayer.init(this);
@@ -66,6 +69,7 @@ export class WALLEBot implements BotClient {
         // init listeners
         this._messageListener.init(this);
         this._readyListener.init(this);
+        this._voiceActivityListener.init(this);
 
         // load all commands
         this.loadCommands();
@@ -106,6 +110,7 @@ export class WALLEBot implements BotClient {
     private initEvents() {
         this._client.on('ready', async () => this._readyListener.evalReady());
         this._client.on('message', async (msg) => this._messageListener.evalMessage(msg));
+        this._client.on('voiceStateUpdate', async (oldState, newState) => this._voiceActivityListener.voiceStateUpdate(oldState, newState));
     }
 
     // load all commands
@@ -123,6 +128,7 @@ export class WALLEBot implements BotClient {
 
     // methods which need a logged in client. Call after bot is ready (called by ready listener)
     public afterInit() {
+        this._voiceActivityListener.afterInit();
         this._audioPlayer.afterInit();
         this._logger.afterInit();
         this._statusMessages.afterInit();
