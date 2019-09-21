@@ -19,9 +19,9 @@ export default class voiceActivityListener {
     public voiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
         if (oldState.channel !== newState.channel && !newState.member.user.bot) {
             const timestamp = new Date();
-            if (oldState.channel && !newState.channel) {
+            if (oldState.channel && !newState.channel && oldState.channel.id !== '409006249200582658') {
                 this.logLeave(oldState.member.user.id, timestamp);
-            } else if (!oldState.channel) {
+            } else if (!oldState.channel && newState.channel.id !== '409006249200582658') {
                 this.logJoin(oldState.member.user.id, newState.channel.id, timestamp);
             } else {
                 this.logSwitch(oldState.member.user.id, newState.channel.id, timestamp);
@@ -35,12 +35,16 @@ export default class voiceActivityListener {
 
     public async logSwitch(userID: string, voiceChannelID: string, timestamp: Date) {
         await this.logLeave(userID, timestamp);
-        this.logJoin(userID, voiceChannelID, timestamp);
+        if (voiceChannelID !== '409006249200582658') {
+            this.logJoin(userID, voiceChannelID, timestamp);
+        }
     }
 
     public async logLeave(userID: string, timestamp: Date) {
         const statEntry = await this._voiceStatsRepository.findOne({ where: { userID: userID, leftTimeStamp: null } });
-        await this._voiceStatsRepository.update({ id: statEntry.id }, { ...statEntry, leftTimeStamp: timestamp });
+        if (statEntry) {
+            await this._voiceStatsRepository.update({ id: statEntry.id }, { ...statEntry, leftTimeStamp: timestamp });
+        }
     }
 
     public afterInit() {
