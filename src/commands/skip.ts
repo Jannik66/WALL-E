@@ -2,6 +2,7 @@ import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
 import { AudioPlayer } from '../audioPlayer';
 import { Logger } from '../logger';
+import { MusicQueue } from '../musicQueue';
 
 export default class skipCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -25,6 +26,8 @@ export default class skipCommand implements BotCommand {
 
     private _logger: Logger;
 
+    private _musicQueue: MusicQueue;
+
     public initCommand(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
@@ -32,7 +35,7 @@ export default class skipCommand implements BotCommand {
 
     public async execute(msg: Message, args: string[], prefix: string) {
         // check if bot is in a voice channel
-        if (!msg.guild.member(this._client.user).voice.channel) {
+        if (!msg.guild.member(this._client.user).voice.channel || this._musicQueue.getQueue().length === 0) {
             this._logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
             // check if bot and user are in the same voice channel
         } else if (msg.guild.member(this._client.user).voice.channel && msg.guild.member(this._client.user).voice.channel !== msg.member.voice.channel) {
@@ -46,6 +49,7 @@ export default class skipCommand implements BotCommand {
     public afterInit() {
         this._audioPlayer = this._botClient.getAudioPlayer();
         this._logger = this._botClient.getLogger();
+        this._musicQueue = this._botClient.getMusicQueue();
     }
 
 }
