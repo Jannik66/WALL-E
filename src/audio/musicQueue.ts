@@ -1,4 +1,4 @@
-import { BotClient, Song } from './customInterfaces';
+import { BotClient, Song } from '../customInterfaces';
 import { Client } from 'discord.js';
 import { EventEmitter } from 'events';
 

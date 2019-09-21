@@ -1,9 +1,9 @@
 import { Client, Collection, Message } from "discord.js";
 import { BotDatabase } from "./DBConnection";
-import { AudioPlayer } from "./audioPlayer";
+import { AudioPlayer } from "./audio/audioPlayer";
 import { Logger } from "./logger";
 import { StatusMessages } from "./statusMessages";
-import { MusicQueue } from "./musicQueue";
+import { MusicQueue } from "./audio/musicQueue";
 
 /**
  * main client class

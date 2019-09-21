@@ -5,41 +5,41 @@ import { Repository } from 'typeorm';
 import { Songs } from './entities/songs';
 import moment from 'moment';
 import schedule, { Job } from 'node-schedule';
-import { MusicQueue } from './musicQueue';
+import { MusicQueue } from './audio/musicQueue';
 // @ts-ignore
 import progress from 'progress-string';
 
 export class StatusMessages {
 
-    BotClient: BotClient;
+    private _botClient: BotClient;
 
-    client: Client;
+    private _client: Client;
 
-    musicQueue: MusicQueue;
+    private _musicQueue: MusicQueue;
 
-    messageChannel: TextChannel;
+    private _messageChannel: TextChannel;
 
-    nowPlayingMessage: Message;
+    private _nowPlayingMessage: Message;
 
-    songsLeaderboardMessage: Message;
+    private _songsLeaderboardMessage: Message;
 
-    djsLeaderboardMessage: Message;
+    private _djsLeaderboardMessage: Message;
 
-    songsRepository: Repository<Songs>;
+    private _songsRepository: Repository<Songs>;
 
-    playingNowString: string;
+    private _playingNowString: string;
 
-    comingUpString: string;
+    private _comingUpString: string;
 
-    messageUpdateJob: Job;
+    private _messageUpdateJob: Job;
 
-    songDuration: number;
+    private _songDuration: number;
 
-    songEndDate: moment.Moment;
+    private _songEndDate: moment.Moment;
 
-    songPosition: number;
+    private _songPosition: number;
 
-    numbers: string[] = [
+    private _numbers: string[] = [
         '1⃣',
         '2⃣',
         '3⃣',
@@ -53,67 +53,67 @@ export class StatusMessages {
     ]
 
     public init(bot: BotClient) {
-        this.BotClient = bot;
-        this.client = this.BotClient.getClient();
+        this._botClient = bot;
+        this._client = this._botClient.getClient();
     }
 
     public async afterInit() {
-        this.musicQueue = this.BotClient.getMusicQueue();
+        this._musicQueue = this._botClient.getMusicQueue();
         this._listenToQueue();
 
-        this.songsRepository = this.BotClient.getDBConnection().getSongsRepository();
-        this.messageChannel = this.client.channels.get(config.wallEChannelID) as TextChannel;
+        this._songsRepository = this._botClient.getDBConnection().getSongsRepository();
+        this._messageChannel = this._client.channels.get(config.wallEChannelID) as TextChannel;
 
-        await this.messageChannel.messages.fetch();
-        this.nowPlayingMessage = this.messageChannel.messages.get(config.nowPlayingMessageID);
-        this.songsLeaderboardMessage = this.messageChannel.messages.get(config.songLeaderboardMessageID);
-        this.djsLeaderboardMessage = this.messageChannel.messages.get(config.djLeaderboardMessageID);
+        await this._messageChannel.messages.fetch();
+        this._nowPlayingMessage = this._messageChannel.messages.get(config.nowPlayingMessageID);
+        this._songsLeaderboardMessage = this._messageChannel.messages.get(config.songLeaderboardMessageID);
+        this._djsLeaderboardMessage = this._messageChannel.messages.get(config.djLeaderboardMessageID);
     }
 
     private _listenToQueue() {
-        this.musicQueue.on('songAdded', (queue: Array<Song>) => {
-            if (this.messageUpdateJob) {
-                this.messageUpdateJob.cancel();
+        this._musicQueue.on('songAdded', (queue: Array<Song>) => {
+            if (this._messageUpdateJob) {
+                this._messageUpdateJob.cancel();
             }
             if (queue.length === 1) {
-                this.songEndDate = moment().add(queue[0].length, 'seconds');
+                this._songEndDate = moment().add(queue[0].length, 'seconds');
             }
             this._updateNowPlayingSong(queue);
         });
-        this.musicQueue.on('proceededToNextSong', (queue: Array<Song>) => {
-            this.messageUpdateJob.cancel();
-            this.songEndDate = moment().add(queue[0].length, 'seconds');
+        this._musicQueue.on('proceededToNextSong', (queue: Array<Song>) => {
+            this._messageUpdateJob.cancel();
+            this._songEndDate = moment().add(queue[0].length, 'seconds');
             this._updateNowPlayingSong(queue);
         });
-        this.musicQueue.on('queueCleared', (queue: Array<Song>) => {
-            if (this.messageUpdateJob) {
-                this.messageUpdateJob.cancel();
+        this._musicQueue.on('queueCleared', (queue: Array<Song>) => {
+            if (this._messageUpdateJob) {
+                this._messageUpdateJob.cancel();
             }
             this._removeSongPlaying();
         });
     }
 
     public _updateNowPlayingSong(queue: Array<Song>) {
-        this.playingNowString = '';
+        this._playingNowString = '';
 
-        this.playingNowString += `<:disc:622750303862915082> Now playing <:disc:622750303862915082>\n\n`;
-        this.playingNowString += `:dvd: **${queue[0].name}**\n`;
-        this.playingNowString += `https://youtu.be/${queue[0].id}\n\n`;
+        this._playingNowString += `<:disc:622750303862915082> Now playing <:disc:622750303862915082>\n\n`;
+        this._playingNowString += `:dvd: **${queue[0].name}**\n`;
+        this._playingNowString += `https://youtu.be/${queue[0].id}\n\n`;
 
-        this.songDuration = parseInt(queue[0].length);
+        this._songDuration = parseInt(queue[0].length);
 
-        this.comingUpString = this.generateQueueString(queue);
+        this._comingUpString = this._generateQueueString(queue);
 
-        this.messageUpdateJob = schedule.scheduleJob('*/2 * * * * *', () => {
+        this._messageUpdateJob = schedule.scheduleJob('*/3 * * * * *', () => {
             let songProgress = '';
-            let songPositionSeconds = this.songDuration - moment.duration(this.songEndDate.diff(moment())).asSeconds();
-            let songPositionString = `[${this.formatDuration(moment.duration(songPositionSeconds, 'seconds'))}] `;
+            let songPositionSeconds = this._songDuration - moment.duration(this._songEndDate.diff(moment())).asSeconds();
+            let songPositionString = `[${this._formatDuration(moment.duration(songPositionSeconds, 'seconds'))}] `;
 
             songProgress += songPositionString;
 
             let bar = progress({
                 width: 20,
-                total: this.songDuration,
+                total: this._songDuration,
                 incomplete: '─',
                 complete: '▬',
                 style: (complete: string, incomplete: string) => {
@@ -122,15 +122,15 @@ export class StatusMessages {
             });
             songProgress += bar(songPositionSeconds);
 
-            let songDurationString = ` [${this.formatDuration(moment.duration(this.songDuration, 'seconds'))}]`;
+            let songDurationString = ` [${this._formatDuration(moment.duration(this._songDuration, 'seconds'))}]`;
             songProgress += songDurationString;
 
-            let nowPlaying = this.playingNowString + '`' + songProgress + '`' + this.comingUpString;
-            this.nowPlayingMessage.edit(nowPlaying);
+            let nowPlaying = this._playingNowString + '`' + songProgress + '`' + this._comingUpString;
+            this._nowPlayingMessage.edit(nowPlaying);
         });
     }
 
-    private formatDuration(duration: moment.Duration): string {
+    private _formatDuration(duration: moment.Duration): string {
         let formattedDuration = '';
         formattedDuration += duration.hours() > 0 ? `${duration.hours()}:` : '';
         formattedDuration += duration.hours() > 0 && duration.minutes() < 10 ? `0${duration.minutes()}:` : `${duration.minutes()}:`;
@@ -139,36 +139,36 @@ export class StatusMessages {
         return formattedDuration;
     }
 
-    private generateQueueString(queue: Array<Song>) {
+    private _generateQueueString(queue: Array<Song>) {
         let comingQueue = [...queue];
         comingQueue.shift();
         let duration = moment.duration(comingQueue.map((value) => parseInt(value.length)).reduce((a, b) => a + b, 0), 'seconds');
-        let durationString = this.formatDuration(duration);
+        let durationString = this._formatDuration(duration);
         let comingUpString = comingQueue.length > 0 ? `\n\n**Coming up** | Total Duration: **${durationString}**\n` : '';
 
         for (let song of comingQueue) {
-            comingUpString += `\n▬ ${song.name} (**${this.formatDuration(moment.duration(parseInt(song.length), 'seconds'))}**)`;
+            comingUpString += `\n▬ ${song.name} (**${this._formatDuration(moment.duration(parseInt(song.length), 'seconds'))}**)`;
         }
 
         return comingUpString;
     }
 
     public pause() {
-        this.messageUpdateJob.cancel();
-        this.songPosition = this.songDuration - moment.duration(this.songEndDate.diff(moment())).asSeconds();
+        this._messageUpdateJob.cancel();
+        this._songPosition = this._songDuration - moment.duration(this._songEndDate.diff(moment())).asSeconds();
     }
 
     public resume() {
-        this.songEndDate = moment().add(this.songDuration - this.songPosition, 'seconds');
-        this._updateNowPlayingSong(this.musicQueue.getQueue());
+        this._songEndDate = moment().add(this._songDuration - this._songPosition, 'seconds');
+        this._updateNowPlayingSong(this._musicQueue.getQueue());
     }
 
     private _removeSongPlaying() {
-        this.nowPlayingMessage.edit(`:no_entry_sign: No Song playing...`);
+        this._nowPlayingMessage.edit(`:no_entry_sign: No Song playing...`);
     }
 
     public async updateSongLeaderboard() {
-        let topSongs: { id: string, name: string, totalPlayed: number }[] = await this.songsRepository
+        let topSongs: { id: string, name: string, totalPlayed: number }[] = await this._songsRepository
             .createQueryBuilder('songs')
             .groupBy('songs.id')
             .select('songs.id', 'id')
@@ -179,7 +179,7 @@ export class StatusMessages {
             .getRawMany();
         let songLeaderboard = `:dvd:**Most played songs**:dvd:\n`;
         for (let topSong in topSongs) {
-            songLeaderboard += `\n${this.numbers[parseInt(topSong)]} **${topSongs[parseInt(topSong)].name}**`;
+            songLeaderboard += `\n${this._numbers[parseInt(topSong)]} **${topSongs[parseInt(topSong)].name}**`;
             songLeaderboard += `\n:arrows_counterclockwise: ${topSongs[parseInt(topSong)].totalPlayed}`;
             songLeaderboard += `\n:link: https://youtu.be/${topSongs[parseInt(topSong)].id}`;
             songLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
@@ -187,11 +187,11 @@ export class StatusMessages {
         if (topSongs.length === 0) {
             songLeaderboard += 'No songs in the database...';
         }
-        this.songsLeaderboardMessage.edit(songLeaderboard);
+        this._songsLeaderboardMessage.edit(songLeaderboard);
     }
 
     public async updateDJLeaderboard() {
-        let topDjs: { userID: string, totalPlayed: number }[] = await this.songsRepository
+        let topDjs: { userID: string, totalPlayed: number }[] = await this._songsRepository
             .createQueryBuilder('songs')
             .groupBy('songs.userID')
             .select('songs.userID', 'userID')
@@ -201,15 +201,15 @@ export class StatusMessages {
             .getRawMany();
         let djLeaderboard = `:tada:**The best DJ's**:tada:\n`;
         for (let topDj in topDjs) {
-            let topSong: { name: string, timesPlayed: number } = await this.songsRepository
+            let topSong: { name: string, timesPlayed: number } = await this._songsRepository
                 .createQueryBuilder('songs')
                 .select('songs.name', 'name')
                 .addSelect('songs.timesPlayed', 'timesPlayed')
                 .orderBy('songs.timesPlayed', 'DESC')
                 .where(`songs.userID = ${topDjs[topDj].userID}`)
                 .getRawOne();
-            let username = this.client.users.get(topDjs[parseInt(topDj)].userID).username;
-            djLeaderboard += `\n${this.numbers[parseInt(topDj)]} **${username}**`;
+            let username = this._client.users.get(topDjs[parseInt(topDj)].userID).username;
+            djLeaderboard += `\n${this._numbers[parseInt(topDj)]} **${username}**`;
             djLeaderboard += `\n:arrows_counterclockwise: ${topDjs[parseInt(topDj)].totalPlayed}`;
             djLeaderboard += `\n**__Most Played:__**\n${topSong.timesPlayed} :arrows_counterclockwise: _${topSong.name}_  `;
             djLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
@@ -218,7 +218,7 @@ export class StatusMessages {
         if (topDjs.length === 0) {
             djLeaderboard += 'No djs in the database...';
         }
-        this.djsLeaderboardMessage.edit(djLeaderboard);
+        this._djsLeaderboardMessage.edit(djLeaderboard);
     }
 
 }

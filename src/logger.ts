@@ -1,4 +1,4 @@
-import { BotClient } from './customInterfaces';
+import { BotClient, Song } from './customInterfaces';
 import { Client, TextChannel, Message, MessageEmbed } from 'discord.js';
 import config from './config';
 import { Repository } from 'typeorm';
@@ -7,38 +7,40 @@ import { StatusMessages } from './statusMessages';
 
 export class Logger {
 
-    BotClient: BotClient;
+    private _botClient: BotClient;
 
-    client: Client;
+    private _client: Client;
 
-    logChannel: TextChannel;
+    private _logChannel: TextChannel;
 
-    songRepsitory: Repository<Songs>;
+    private _songRepsitory: Repository<Songs>;
 
-    statusMessages: StatusMessages;
+    private _statusMessages: StatusMessages;
 
-    public init(bot: BotClient) {
-        this.BotClient = bot;
-        this.client = this.BotClient.getClient();
+    public init(botClient: BotClient) {
+        this._botClient = botClient;
+        this._client = this._botClient.getClient();
     }
 
+    // send help message to log channel
     public logHelp(msg: Message, helpEmbed: MessageEmbed) {
-        this.logChannel.send(`${msg.author.toString()}`).then(() => {
-            this.logChannel.send(helpEmbed);
+        this._logChannel.send(`${msg.author.toString()}`).then(() => {
+            this._logChannel.send(helpEmbed);
         });
     }
 
-    public logSong(msg: Message, songInfo: { name: string, id: string }) {
+    // log song request
+    public logSong(msg: Message, song: Song) {
         let embed = new MessageEmbed();
         embed.setColor(0x007BFF);
         embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
         embed.setTimestamp(new Date());
 
-        embed.addField(songInfo.name, `https://youtu.be/${songInfo.id}`);
-        this.logChannel.send(embed);
-        this.saveSong(msg, songInfo);
+        embed.addField(song.name, `https://youtu.be/${song.id}`);
+        this._logChannel.send(embed);
     }
 
+    // log skip
     public logSkip(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
@@ -46,9 +48,10 @@ export class Logger {
         embed.setTimestamp(new Date());
 
         embed.setTitle(':fast_forward: Skipped');
-        this.logChannel.send(embed);
+        this._logChannel.send(embed);
     }
 
+    // log leave
     public logLeave(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
@@ -56,9 +59,10 @@ export class Logger {
         embed.setTimestamp(new Date());
 
         embed.setTitle(':no_entry_sign: Left');
-        this.logChannel.send(embed);
+        this._logChannel.send(embed);
     }
 
+    // log pause
     public logPause(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
@@ -66,9 +70,10 @@ export class Logger {
         embed.setTimestamp(new Date());
 
         embed.setTitle(':pause_button: Paused');
-        this.logChannel.send(embed);
+        this._logChannel.send(embed);
     }
 
+    // log resume
     public logResume(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
@@ -76,28 +81,30 @@ export class Logger {
         embed.setTimestamp(new Date());
 
         embed.setTitle(':arrow_forward: Resumed');
-        this.logChannel.send(embed);
+        this._logChannel.send(embed);
     }
 
+    // log any error (provide error as string)
     public logError(msg: Message, errorString: string) {
-        this.logChannel.send(`${msg.author.toString()}\n${errorString}`);
+        this._logChannel.send(`${msg.author.toString()}\n${errorString}`);
     }
 
-    public async saveSong(msg: Message, songInfo: { name: string, id: string }) {
-        let song = await this.songRepsitory.findOne({ where: { id: songInfo.id, userID: msg.author.id } });
+    // save Song in database
+    public async saveSong(newSong: Song) {
+        let song = await this._songRepsitory.findOne({ where: { id: newSong.id, userID: newSong.requester } });
         if (song) {
-            await this.songRepsitory.update({ id: songInfo.id, userID: msg.author.id }, { timesPlayed: song.timesPlayed + 1 });
+            await this._songRepsitory.update({ id: newSong.id, userID: newSong.requester }, { timesPlayed: song.timesPlayed + 1 });
         } else {
-            await this.songRepsitory.insert({ id: songInfo.id, userID: msg.author.id, name: songInfo.name, timesPlayed: 1 });
+            await this._songRepsitory.insert({ id: newSong.id, userID: newSong.requester, name: newSong.name, timesPlayed: 1 });
         }
-        this.statusMessages.updateSongLeaderboard();
-        this.statusMessages.updateDJLeaderboard();
+        this._statusMessages.updateSongLeaderboard();
+        this._statusMessages.updateDJLeaderboard();
     }
 
     public afterInit() {
-        this.logChannel = this.client.channels.get(config.logChannelID) as TextChannel;
-        this.songRepsitory = this.BotClient.getDBConnection().getSongsRepository();
-        this.statusMessages = this.BotClient.getStatusMessages();
+        this._logChannel = this._client.channels.get(config.logChannelID) as TextChannel;
+        this._songRepsitory = this._botClient.getDBConnection().getSongsRepository();
+        this._statusMessages = this._botClient.getStatusMessages();
     }
 
 }

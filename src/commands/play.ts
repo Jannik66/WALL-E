@@ -1,6 +1,6 @@
-import { BotCommand, BotClient } from '../customInterfaces';
+import { BotCommand, BotClient, Song } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
-import { AudioPlayer } from '../audioPlayer';
+import { AudioPlayer } from '../audio/audioPlayer';
 import * as ytdl from 'ytdl-core';
 import { Logger } from '../logger';
 
@@ -63,9 +63,9 @@ export default class playCommand implements BotCommand {
                         msg.delete();
                         return;
                     }
-
-                    this._audioPlayer.addVideo(msg, { name: info.title, requester: msg.author.id, id: info.video_id, length: info.length_seconds });
-                    this._logger.logSong(msg, { name: info.title, id: info.video_id });
+                    const song: Song = { name: info.title, requester: msg.author.id, id: info.video_id, length: info.length_seconds };
+                    this._audioPlayer.addVideo(msg.member.voice.channel, song);
+                    this._logger.logSong(msg, song);
                     msg.delete();
                 });
             } else {

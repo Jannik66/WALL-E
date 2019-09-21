@@ -5,10 +5,10 @@ import readyListener from './listeners/readyListener';
 import messageListener from './listeners/messageListener';
 import { BotDatabase } from './DBConnection';
 import { BotCommand, BotClient } from './customInterfaces';
-import { AudioPlayer } from './audioPlayer';
+import { AudioPlayer } from './audio/audioPlayer';
 import { Logger } from './logger';
 import { StatusMessages } from './statusMessages';
-import { MusicQueue } from './musicQueue';
+import { MusicQueue } from './audio/musicQueue';
 
 export class WALLEBot implements BotClient {
     // Discord Client of the Bot
