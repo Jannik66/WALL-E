@@ -29,9 +29,10 @@ export default class readyListener {
         }
         for (const voiceChannel of voiceChannels) {
             for (const member of voiceChannel.members) {
-                this.BotClient.getDBConnection().getVoiceStatsRepository().insert({ userID: member[1].id, voiceChannelID: voiceChannel.id, joinedTimeStamp: now });
+                if (!member[1].user.bot) {
+                    this.BotClient.getDBConnection().getVoiceStatsRepository().insert({ userID: member[1].id, voiceChannelID: voiceChannel.id, joinedTimeStamp: now });
+                }
             }
         }
-
     }
 }
