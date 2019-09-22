@@ -14,7 +14,7 @@ export default class playCommand implements BotCommand {
         hasAfterInit: true,
         admin: false,
         aliases: ['p'],
-        usage: 'play {youbute link}',
+        usage: 'play {youtube link}',
         examples: ['play https://youtu.be/GMb02tAqDRM']
     }
 

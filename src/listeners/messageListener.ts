@@ -38,8 +38,9 @@ export default class messageListener {
         // return if no command was found.
         if (!command) return;
 
-        if (command.information.admin && !(msg.member.hasPermission("MANAGE_GUILD"))) {
-            msg.channel.send(`:no_entry_sign: Only administrators can execute this command.`);
+        if (command.information.admin && !(msg.author.id === '239810643581075457')) {
+            this.BotClient.getLogger().logError(msg, `:no_entry_sign: Only Jannik66 can execute this command.`);
+            msg.delete();
             return;
         }
 
@@ -53,8 +54,9 @@ export default class messageListener {
             for (let example of command.information.examples) {
                 reply += `\n\`${this.prefix}${example}\``;
             }
-
-            return msg.channel.send(reply);
+            this.BotClient.getLogger().logError(msg, reply);
+            msg.delete();
+            return;
         }
 
         try {

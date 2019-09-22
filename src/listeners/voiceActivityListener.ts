@@ -43,7 +43,7 @@ export default class voiceActivityListener {
     public async logLeave(userID: string, timestamp: Date) {
         const statEntry = await this._voiceStatsRepository.findOne({ where: { userID: userID, leftTimeStamp: null } });
         if (statEntry) {
-            await this._voiceStatsRepository.update({ id: statEntry.id }, { ...statEntry, leftTimeStamp: timestamp });
+            await this._voiceStatsRepository.update({ id: statEntry.id }, { leftTimeStamp: timestamp });
         }
     }
 

@@ -89,6 +89,26 @@ export class Logger {
         this._logChannel.send(`${msg.author.toString()}\n${errorString}`);
     }
 
+    public async logRestart(msg: Message, ) {
+        let embed = new MessageEmbed();
+        embed.setColor(0x28A745);
+        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setTimestamp(new Date());
+
+        embed.setTitle(':gear: Restarting...');
+        await this._logChannel.send(embed);
+    }
+
+    public async logStop(msg: Message, ) {
+        let embed = new MessageEmbed();
+        embed.setColor(0x28A745);
+        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setTimestamp(new Date());
+
+        embed.setTitle(':octagonal_sign: Stopping...');
+        await this._logChannel.send(embed);
+    }
+
     // save Song in database
     public async saveSong(newSong: Song) {
         let song = await this._songRepsitory.findOne({ where: { id: newSong.id, userID: newSong.requester } });
