@@ -38,7 +38,7 @@ export default class messageListener {
         // return if no command was found.
         if (!command) return;
 
-        if (command.information.admin && !(msg.author.id === '239810643581075457')) {
+        if (command.information.admin && !(msg.author.id === config.botOwnerID)) {
             this.BotClient.getLogger().logError(msg, `:no_entry_sign: Only Jannik66 can execute this command.`);
             msg.delete();
             return;

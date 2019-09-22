@@ -1,9 +1,9 @@
-import { Client, Collection, Message } from "discord.js";
-import { BotDatabase } from "./DBConnection";
-import { AudioPlayer } from "./audio/audioPlayer";
-import { Logger } from "./logger";
-import { StatusMessages } from "./statusMessages";
-import { MusicQueue } from "./audio/musicQueue";
+import { Client, Collection, Message } from 'discord.js';
+import { BotDatabase } from './DBConnection';
+import { AudioPlayer } from './audio/audioPlayer';
+import { Logger } from './logger';
+import { StatusMessages } from './statusMessages';
+import { MusicQueue } from './audio/musicQueue';
 
 /**
  * main client class
@@ -49,6 +49,8 @@ export interface BotConfig {
     nowPlayingMessageID: string,
     songLeaderboardMessageID: string,
     djLeaderboardMessageID: string,
+    BDCGuildID: string,
+    botOwnerID: string,
     botToken: string,
     prefix: string,
     botID: string,

@@ -1,4 +1,6 @@
 import { BotClient } from '../customInterfaces';
+import config from '../config';
+import { VoiceChannel } from 'discord.js';
 
 export default class readyListener {
 
@@ -15,6 +17,21 @@ export default class readyListener {
     }
 
     private _checkForVoiceConnections() {
-        
+        const now = new Date();
+        const BDCGuild = this.BotClient.getClient().guilds.get(config.BDCGuildID);
+        let voiceChannels: VoiceChannel[] = [];
+        for (const channel of BDCGuild.channels) {
+            if (channel[1].type === 'voice') {
+                if (channel[1].id !== BDCGuild.afkChannelID) {
+                    voiceChannels.push(channel[1] as VoiceChannel);
+                }
+            }
+        }
+        for (const voiceChannel of voiceChannels) {
+            for (const member of voiceChannel.members) {
+                this.BotClient.getDBConnection().getVoiceStatsRepository().insert({ userID: member[1].id, voiceChannelID: voiceChannel.id, joinedTimeStamp: now });
+            }
+        }
+
     }
 }

@@ -36,11 +36,11 @@ export default class leaveCommand implements BotCommand {
 
     public async execute(msg: Message, args: string[], prefix: string) {
         try {
-            const code = args.join(" ");
+            const code = args.join(' ');
             let evaled = await eval(code);
 
-            if (typeof evaled !== "string")
-                evaled = require("util").inspect(evaled);
+            if (typeof evaled !== 'string')
+                evaled = require('util').inspect(evaled);
 
 
             this._logger.logEval(msg, args, true, '```xl\n' + this._clean(evaled) + '```');
@@ -51,7 +51,7 @@ export default class leaveCommand implements BotCommand {
     }
 
     private _clean(text: string): string {
-        return typeof (text) === "string" ? text.replace(/`/g, "`" + String.fromCharCode(8203)).replace(/@/g, "@" + String.fromCharCode(8203)) : text;
+        return typeof (text) === 'string' ? text.replace(/`/g, '`' + String.fromCharCode(8203)).replace(/@/g, '@' + String.fromCharCode(8203)) : text;
     }
 
 }
