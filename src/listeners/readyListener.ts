@@ -11,5 +11,10 @@ export default class readyListener {
     public async evalReady() {
         console.log(`Logged in as ${this.BotClient.getClient().user.tag}`);
         this.BotClient.afterInit();
+        this._checkForVoiceConnections();
+    }
+
+    private _checkForVoiceConnections() {
+        
     }
 }

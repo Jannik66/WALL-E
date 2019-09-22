@@ -30,7 +30,6 @@ export interface BotCommand {
         category: string,
         description: string,
         argsRequired: boolean,
-        hasAfterInit: boolean,
         admin: boolean,
         aliases: string[],
         usage: string,

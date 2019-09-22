@@ -10,7 +10,6 @@ export default class leaveCommand implements BotCommand {
         category: 'Music',
         description: 'Leaves the voice channel and resets the queue.',
         argsRequired: false,
-        hasAfterInit: true,
         admin: false,
         aliases: ['l'],
         usage: 'leave',
@@ -28,6 +27,8 @@ export default class leaveCommand implements BotCommand {
     public initCommand(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
+        this._audioPlayer = this._botClient.getAudioPlayer();
+        this._logger = this._botClient.getLogger();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
@@ -40,10 +41,4 @@ export default class leaveCommand implements BotCommand {
         }
         msg.delete();
     }
-
-    public afterInit() {
-        this._audioPlayer = this._botClient.getAudioPlayer();
-        this._logger = this._botClient.getLogger();
-    }
-
 }

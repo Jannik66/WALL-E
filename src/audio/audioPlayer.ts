@@ -27,9 +27,6 @@ export class AudioPlayer {
     public init(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
-    }
-
-    public afterInit() {
         this._statusMessage = this._botClient.getStatusMessages();
         this._logger = this._botClient.getLogger();
         this._musicQueue = this._botClient.getMusicQueue();

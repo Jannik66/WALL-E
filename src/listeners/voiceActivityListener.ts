@@ -14,6 +14,7 @@ export default class voiceActivityListener {
     public init(BotClient: BotClient) {
         this.BotClient = BotClient;
         this.client = this.BotClient.getClient();
+        this._voiceStatsRepository = this.BotClient.getDBConnection().getVoiceStatsRepository();
     }
 
     public voiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
@@ -45,10 +46,6 @@ export default class voiceActivityListener {
         if (statEntry) {
             await this._voiceStatsRepository.update({ id: statEntry.id }, { leftTimeStamp: timestamp });
         }
-    }
-
-    public afterInit() {
-        this._voiceStatsRepository = this.BotClient.getDBConnection().getVoiceStatsRepository();
     }
 
 }

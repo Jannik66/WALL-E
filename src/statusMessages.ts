@@ -55,13 +55,13 @@ export class StatusMessages {
     public init(bot: BotClient) {
         this._botClient = bot;
         this._client = this._botClient.getClient();
+        this._musicQueue = this._botClient.getMusicQueue();
+        this._songsRepository = this._botClient.getDBConnection().getSongsRepository();
     }
 
     public async afterInit() {
-        this._musicQueue = this._botClient.getMusicQueue();
         this._listenToQueue();
 
-        this._songsRepository = this._botClient.getDBConnection().getSongsRepository();
         this._messageChannel = this._client.channels.get(config.wallEChannelID) as TextChannel;
 
         await this._messageChannel.messages.fetch();

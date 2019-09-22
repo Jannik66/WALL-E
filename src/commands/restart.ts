@@ -12,7 +12,6 @@ export default class leaveCommand implements BotCommand {
         category: 'Admin',
         description: 'Gracefully restarts the bot.',
         argsRequired: false,
-        hasAfterInit: true,
         admin: true,
         aliases: [],
         usage: 'restart',
@@ -30,6 +29,8 @@ export default class leaveCommand implements BotCommand {
     public initCommand(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
+        this._logger = this._botClient.getLogger();
+        this._voiceStatsRepository = this._botClient.getDBConnection().getVoiceStatsRepository();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
@@ -37,7 +38,7 @@ export default class leaveCommand implements BotCommand {
         await msg.delete();
         await this._clearSongRepository();
         this._client.destroy();
-        process.exit(66);
+        process.exit();
     }
 
     private async _clearSongRepository() {
@@ -46,11 +47,6 @@ export default class leaveCommand implements BotCommand {
         for (const connection of stillConnected) {
             await this._voiceStatsRepository.update({ id: connection.id }, { leftTimeStamp: now });
         }
-    }
-
-    public afterInit() {
-        this._logger = this._botClient.getLogger();
-        this._voiceStatsRepository = this._botClient.getDBConnection().getVoiceStatsRepository();
     }
 
 }

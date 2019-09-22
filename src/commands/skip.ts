@@ -11,7 +11,6 @@ export default class skipCommand implements BotCommand {
         category: 'Music',
         description: 'Skips one song.',
         argsRequired: false,
-        hasAfterInit: true,
         admin: false,
         aliases: ['s'],
         usage: 'skip',
@@ -31,6 +30,9 @@ export default class skipCommand implements BotCommand {
     public initCommand(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
+        this._audioPlayer = this._botClient.getAudioPlayer();
+        this._logger = this._botClient.getLogger();
+        this._musicQueue = this._botClient.getMusicQueue();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
@@ -44,12 +46,6 @@ export default class skipCommand implements BotCommand {
             this._audioPlayer.skip(msg);
         }
         msg.delete();
-    }
-
-    public afterInit() {
-        this._audioPlayer = this._botClient.getAudioPlayer();
-        this._logger = this._botClient.getLogger();
-        this._musicQueue = this._botClient.getMusicQueue();
     }
 
 }

@@ -11,7 +11,6 @@ export default class pauseCommand implements BotCommand {
         category: 'Music',
         description: 'Pauses or resumes the music.',
         argsRequired: false,
-        hasAfterInit: true,
         admin: false,
         aliases: ['pause'],
         usage: 'pause',
@@ -31,6 +30,9 @@ export default class pauseCommand implements BotCommand {
     public initCommand(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
+        this._audioPlayer = this._botClient.getAudioPlayer();
+        this._logger = this._botClient.getLogger();
+        this._musicQueue = this._botClient.getMusicQueue();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
@@ -46,11 +48,4 @@ export default class pauseCommand implements BotCommand {
         }
         msg.delete();
     }
-
-    public afterInit() {
-        this._audioPlayer = this._botClient.getAudioPlayer();
-        this._logger = this._botClient.getLogger();
-        this._musicQueue = this._botClient.getMusicQueue();
-    }
-
 }

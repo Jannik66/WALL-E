@@ -128,14 +128,7 @@ export class WALLEBot implements BotClient {
 
     // methods which need a logged in client. Call after bot is ready (called by ready listener)
     public afterInit() {
-        this._voiceActivityListener.afterInit();
-        this._audioPlayer.afterInit();
         this._logger.afterInit();
         this._statusMessages.afterInit();
-        for (let command of this._commands) {
-            if (command[1].information.hasAfterInit) {
-                command[1].afterInit()
-            }
-        }
     }
 }

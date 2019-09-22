@@ -11,7 +11,6 @@ export default class playCommand implements BotCommand {
         category: 'Music',
         description: 'Play any youtube song.',
         argsRequired: true,
-        hasAfterInit: true,
         admin: false,
         aliases: ['p'],
         usage: 'play {youtube link}',
@@ -29,6 +28,8 @@ export default class playCommand implements BotCommand {
     public initCommand(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
+        this._audioPlayer = this._botClient.getAudioPlayer();
+        this._logger = this._botClient.getLogger();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
@@ -77,10 +78,4 @@ export default class playCommand implements BotCommand {
             msg.delete();
         }
     }
-
-    public afterInit() {
-        this._audioPlayer = this._botClient.getAudioPlayer();
-        this._logger = this._botClient.getLogger();
-    }
-
 }

@@ -9,7 +9,6 @@ export default class helpCommand implements BotCommand {
         category: 'Information',
         description: 'Displays all available commands.',
         argsRequired: false,
-        hasAfterInit: true,
         admin: false,
         aliases: ['h'],
         usage: 'help',
@@ -27,6 +26,8 @@ export default class helpCommand implements BotCommand {
     public initCommand(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
+        this._commands = this._botClient.getAllCommands();
+        this._logger = this._botClient.getLogger();
     }
 
     public execute(msg: Message, args: string[], prefix: string) {
@@ -94,11 +95,6 @@ export default class helpCommand implements BotCommand {
             this._logger.logHelp(msg, embed);
         }
         msg.delete();
-    }
-
-    public afterInit() {
-        this._commands = this._botClient.getAllCommands();
-        this._logger = this._botClient.getLogger();
     }
 
 }

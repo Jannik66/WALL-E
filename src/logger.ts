@@ -20,6 +20,8 @@ export class Logger {
     public init(botClient: BotClient) {
         this._botClient = botClient;
         this._client = this._botClient.getClient();
+        this._songRepsitory = this._botClient.getDBConnection().getSongsRepository();
+        this._statusMessages = this._botClient.getStatusMessages();
     }
 
     // send help message to log channel
@@ -99,7 +101,7 @@ export class Logger {
         await this._logChannel.send(embed);
     }
 
-    public async logStop(msg: Message, ) {
+    public async logStop(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
         embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
@@ -107,6 +109,20 @@ export class Logger {
 
         embed.setTitle(':octagonal_sign: Stopping...');
         await this._logChannel.send(embed);
+    }
+
+    public logEval(msg: Message, args: string[], success: boolean, output: string) {
+        let embed = new MessageEmbed();
+        embed.setColor(0x28A745);
+        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setTimestamp(new Date());
+        embed.setTitle('\`EVAL:\` ' + `\`${args.join(" ")}\`` + `\n${success ? '\`SUCCESS\`' : '\`ERROR\`'}`);
+        if (output.length < 2048) {
+            embed.setDescription(output);
+        } else {
+            embed.setDescription('Can\'t display Output. Exeeds the maximum of 2048 characters..');
+        }
+        this._logChannel.send(embed);
     }
 
     // save Song in database
@@ -123,8 +139,6 @@ export class Logger {
 
     public afterInit() {
         this._logChannel = this._client.channels.get(config.logChannelID) as TextChannel;
-        this._songRepsitory = this._botClient.getDBConnection().getSongsRepository();
-        this._statusMessages = this._botClient.getStatusMessages();
     }
 
 }
