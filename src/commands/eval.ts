@@ -1,9 +1,6 @@
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
-import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../logger';
-import { Repository } from 'typeorm';
-import { VoiceStats } from '../entities/voiceStats';
 import { BotDatabase } from '../DBConnection';
 
 export default class leaveCommand implements BotCommand {
@@ -16,7 +13,7 @@ export default class leaveCommand implements BotCommand {
         admin: true,
         aliases: [],
         usage: 'eval {command}',
-        examples: ['eval {msg.send(\'test\')}']
+        examples: ['eval {msg.channel.send(\'test\')}']
     }
 
     private _botClient: BotClient;

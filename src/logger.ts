@@ -91,6 +91,16 @@ export class Logger {
         this._logChannel.send(`${msg.author.toString()}\n${errorString}`);
     }
 
+    public logSuccess(msg: Message, content: string) {
+        let embed = new MessageEmbed();
+        embed.setColor(0x28A745);
+        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setTimestamp(new Date());
+
+        embed.setTitle(content);
+        this._logChannel.send(embed);
+    }
+
     public async logRestart(msg: Message, ) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);

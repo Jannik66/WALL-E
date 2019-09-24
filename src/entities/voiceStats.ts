@@ -2,7 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('VoiceStats')
 export class VoiceStats {
-    @PrimaryGeneratedColumn() id: string;
+    @PrimaryGeneratedColumn() id: number;
 
     @Column('varchar') userID: string;
 
