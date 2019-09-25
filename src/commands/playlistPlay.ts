@@ -65,6 +65,7 @@ export default class playlistPlayCommand implements BotCommand {
         embed.setTimestamp(new Date());
         embed.setTitle(`Enqueued ${playlist.songs.length} Songs from playlist ${playlist.name}.`);
         this._logger.logEmbed(embed);
+        msg.delete();
     }
 
     private _sendMessage(msg: Message, text: string) {
