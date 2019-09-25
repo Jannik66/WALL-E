@@ -146,8 +146,15 @@ export class StatusMessages {
         let durationString = this._formatDuration(duration);
         let comingUpString = comingQueue.length > 0 ? `\n\n**Coming up** | Total Duration: **${durationString}**\n` : '';
 
-        for (let song of comingQueue) {
-            comingUpString += `\n▬ ${song.name} (**${this._formatDuration(moment.duration(parseInt(song.length), 'seconds'))}**)`;
+        if (comingQueue.length > 20) {
+            for (let i = 0; i < 20; i++) {
+                comingUpString += `\n▬ ${comingQueue[i].name} (**${this._formatDuration(moment.duration(parseInt(comingQueue[i].length), 'seconds'))}**)`;
+            }
+            comingUpString += `\n\n+ ${comingQueue.length - 20} more...`;
+        } else {
+            for (let song of comingQueue) {
+                comingUpString += `\n▬ ${song.name} (**${this._formatDuration(moment.duration(parseInt(song.length), 'seconds'))}**)`;
+            }
         }
 
         return comingUpString;
