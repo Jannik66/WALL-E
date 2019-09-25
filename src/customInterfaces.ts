@@ -45,6 +45,7 @@ export interface BotCommand {
  */
 export interface BotConfig {
     logChannelID: string,
+    dashboardChannelID: string,
     wallEChannelID: string,
     nowPlayingMessageID: string,
     songLeaderboardMessageID: string,

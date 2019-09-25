@@ -1,6 +1,5 @@
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
-import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../logger';
 import { Repository } from 'typeorm';
 import { VoiceStats } from '../entities/voiceStats';

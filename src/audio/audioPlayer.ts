@@ -138,7 +138,7 @@ export class AudioPlayer {
         // read Stream from audioStream file and play it
         this._dispatcher = this._connection.play(fs.createReadStream('audioStream'), {
             bitrate: this._connection.channel.bitrate / 1000,
-            volume: 0.05
+            volume: 0.1
         });
 
         // if dispatcher ends, proceed to next song

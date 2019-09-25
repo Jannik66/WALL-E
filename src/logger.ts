@@ -101,6 +101,14 @@ export class Logger {
         this._logChannel.send(embed);
     }
 
+    public logEmbed(embed: MessageEmbed) {
+        this._logChannel.send(embed);
+    }
+
+    public logText(text: string) {
+        this._logChannel.send(text);
+    }
+
     public async logRestart(msg: Message, ) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);

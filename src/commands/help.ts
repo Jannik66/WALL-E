@@ -1,6 +1,7 @@
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Collection, MessageEmbed, Client } from 'discord.js';
 import { Logger } from '../logger';
+import config from '../config';
 
 export default class helpCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -70,10 +71,10 @@ export default class helpCommand implements BotCommand {
             }
 
             // send help message to log channel
-            this._logger.logHelp(msg, embed);
+            this._sendEmbedMessage(msg, embed);
         } else if (args[0]) {
             // if no command was found, send error message
-            this._logger.logError(msg, ':no_entry_sign: Command not found.');
+            this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, the command \`${args[0]}\` was not found.`);
         } else {
             // set up general help message
             embed.setTitle(`Commands`);
@@ -92,9 +93,27 @@ export default class helpCommand implements BotCommand {
             for (const key in fields) {
                 embed.addField(`►${key}◄`, fields[key]);
             }
-            this._logger.logHelp(msg, embed);
+            this._sendEmbedMessage(msg, embed);
         }
-        msg.delete();
+
+    }
+
+    private _sendMessage(msg: Message, text: string) {
+        if (msg.channel.id === config.wallEChannelID) {
+            msg.channel.send(text);
+        } else {
+            msg.delete();
+            this._logger.logText(text);
+        }
+    }
+
+    private _sendEmbedMessage(msg: Message, embed: MessageEmbed) {
+        if (msg.channel.id === config.wallEChannelID) {
+            msg.channel.send(embed);
+        } else {
+            msg.delete();
+            this._logger.logEmbed(embed);
+        }
     }
 
 }

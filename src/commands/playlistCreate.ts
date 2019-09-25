@@ -1,7 +1,7 @@
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
 import { Logger } from '../logger';
-import { MusicQueue } from '../audio/musicQueue';
+import config from '../config';
 
 export default class playlistCreateCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -31,15 +31,28 @@ export default class playlistCreateCommand implements BotCommand {
     public async execute(msg: Message, args: string[], prefix: string) {
         const playlistName = args[0];
 
+        if (playlistName.match(/^[0-9]*$/)) {
+            this._sendMessage(msg, `:x: ${msg.author.toString()}, the playlist can't be a number`);
+            return;
+        }
+
         const playlist = await this._botClient.getDBConnection().getPlaylistsRepository().findOne({ where: { name: playlistName } });
 
         if (playlist) {
-            this._logger.logError(msg, `:no_entry_sign: The playlist "${playlistName}" does already exist.`);
-        } else {
-            await this._botClient.getDBConnection().getPlaylistsRepository().insert({ name: playlistName });
-            this._logger.logSuccess(msg, `Playlist "${playlistName}" successfully created.`);
+            this._sendMessage(msg, `:x: ${msg.author.toString()}, the playlist **${playlistName}** does already exist.`);
+            return;
         }
-        msg.delete();
+        await this._botClient.getDBConnection().getPlaylistsRepository().insert({ name: playlistName });
+        this._sendMessage(msg, `:white_check_mark: Playlist **${playlistName}** successfully created.`);
+    }
+
+    private _sendMessage(msg: Message, text: string) {
+        if (msg.channel.id === config.wallEChannelID) {
+            msg.channel.send(text);
+        } else {
+            msg.delete();
+            this._logger.logText(text);
+        }
     }
 
 }

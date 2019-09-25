@@ -9,6 +9,8 @@ export class PlaylistSongs {
 
     @Column('varchar') name: string;
 
+    @Column('int') length: number;
+
     @ManyToOne(type => Playlists, playlist => playlist.songs)
     playlist: Playlists;
 }

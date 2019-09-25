@@ -62,7 +62,7 @@ export class StatusMessages {
     public async afterInit() {
         this._listenToQueue();
 
-        this._messageChannel = this._client.channels.get(config.wallEChannelID) as TextChannel;
+        this._messageChannel = this._client.channels.get(config.dashboardChannelID) as TextChannel;
 
         await this._messageChannel.messages.fetch();
         this._nowPlayingMessage = this._messageChannel.messages.get(config.nowPlayingMessageID);
