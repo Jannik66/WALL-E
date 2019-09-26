@@ -15,8 +15,8 @@ export default class playlistPlayCommand implements BotCommand {
         argsRequired: true,
         admin: false,
         aliases: ['pp'],
-        usage: 'playlistplay [playlistname | id]',
-        examples: ['playlistplay [playlistname | id]']
+        usage: 'playlistplay {playlistname | id} [number of songs]',
+        examples: ['playlistplay MEMES 10']
     }
 
     private _botClient: BotClient;
@@ -55,15 +55,39 @@ export default class playlistPlayCommand implements BotCommand {
             return;
         }
 
-        let songs = shuffle(playlist.songs);
-        for (const song of songs) {
-            this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length.toString() });
-        };
         let embed = new MessageEmbed();
         embed.setColor(0x007BFF);
         embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
         embed.setTimestamp(new Date());
-        embed.setTitle(`Enqueued ${playlist.songs.length} Songs from playlist ${playlist.name}.`);
+
+        if (!msg.member.voice.channel) {
+            this._logger.logError(msg, ':no_entry_sign: Please join a voice channel.');
+            return;
+        } else if (msg.guild.member(this._client.user).voice.channel && msg.guild.member(this._client.user).voice.channel !== msg.member.voice.channel) {
+            this._logger.logError(msg, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
+            return;
+        }
+
+        let songs = shuffle(playlist.songs);
+        if (args[1]) {
+            if (!args[1].match(/^[0-9]*$/)) {
+                this._sendMessage(msg, `:x: ${msg.author.toString()}, please provide a valid number.`);
+                return;
+            } else if (parseInt(args[1]) > songs.length) {
+                this._sendMessage(msg, `:x: ${msg.author.toString()}, the playlist ${playlist.name} only contains ${songs.length} songs.`);
+                return;
+            }
+            const count = parseInt(args[1]);
+            embed.setTitle(`Enqueued ${count} Songs from playlist ${playlist.name}.`);
+            for (let i = 0; i < count; i++) {
+                this._audioPlayer.addVideo(msg.member.voice.channel, { name: songs[i].name, requester: msg.author.id, id: songs[i].id, length: songs[i].length.toString() });
+            }
+        } else {
+            embed.setTitle(`Enqueued ${playlist.songs.length} Songs from playlist ${playlist.name}.`);
+            for (const song of songs) {
+                this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length.toString() });
+            };
+        }
         this._logger.logEmbed(embed);
         msg.delete();
     }

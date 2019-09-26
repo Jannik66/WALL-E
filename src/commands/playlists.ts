@@ -55,7 +55,7 @@ export default class playlistsCommand implements BotCommand {
                     return;
                 }
             } else {
-                playlist = playlists.find(val => val.name === playlistIdentifier);
+                playlist = playlists.find(val => val.name.toLowerCase() === playlistIdentifier.toLowerCase());
                 if (!playlist) {
                     this._sendMessage(msg, `:x: ${msg.author.toString()}, playlist with name ${playlistIdentifier} not found.`);
                     return;
