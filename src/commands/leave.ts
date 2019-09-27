@@ -8,7 +8,7 @@ export default class leaveCommand implements BotCommand {
         id: 3,
         name: 'leave',
         category: 'Music',
-        description: 'Leaves the voice channel and resets the queue.',
+        description: 'Leaves the voice channel and clears the queue.',
         argsRequired: false,
         admin: false,
         aliases: ['l'],

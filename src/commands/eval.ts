@@ -8,7 +8,7 @@ export default class leaveCommand implements BotCommand {
         id: 6,
         name: 'eval',
         category: 'Admin',
-        description: 'Eval command',
+        description: 'Eval command.',
         argsRequired: true,
         admin: true,
         aliases: [],

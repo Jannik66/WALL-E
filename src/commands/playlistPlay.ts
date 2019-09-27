@@ -11,7 +11,7 @@ export default class playlistPlayCommand implements BotCommand {
         id: 10,
         name: 'playlistplay',
         category: 'Playlist',
-        description: 'Adds all songs of the given playlist.',
+        description: 'Adds the songs of a playlist to the queue.',
         argsRequired: true,
         admin: false,
         aliases: ['pp'],

@@ -11,7 +11,7 @@ export default class playlistAddCommand implements BotCommand {
         id: 8,
         name: 'playlistadd',
         category: 'Playlist',
-        description: 'Add any song to a playlist',
+        description: 'Add a song to a playlist.',
         argsRequired: true,
         admin: false,
         aliases: ['pa'],
