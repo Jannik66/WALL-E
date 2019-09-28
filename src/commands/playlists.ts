@@ -133,7 +133,7 @@ export default class playlistsCommand implements BotCommand {
         let songField: string;
         for (let i = 1; i <= this._reactionMsgOptions.max; i++) {
             songField = '';
-            let soungCount = i === this._reactionMsgOptions.max ? playlist.songs.length % 10 : 10;
+            let soungCount = i === this._reactionMsgOptions.max && playlist.songs.length % 10 !== 0 ? playlist.songs.length % 10 : 10;
             for (let a = 0; a < soungCount; a++) {
                 songField += `${playlist.songs[(i - 1) * 10 + a].playlistIndex}. ${playlist.songs[(i - 1) * 10 + a].name}\n▬▬ https://youtu.be/${playlist.songs[(i - 1) * 10 + a].id}\n`;
             }
