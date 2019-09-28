@@ -4,18 +4,15 @@ import config from '../config';
 
 export default class messageListener {
 
-    BotClient: BotClient;
+    private _client: Client;
 
-    client: Client;
+    private _prefix: string;
 
-    prefix: string;
-
-    public init(BotClient: BotClient) {
-        this.BotClient = BotClient;
-        this.client = this.BotClient.getClient();
+    constructor(private _botClient: BotClient) {
+        this._client = this._botClient.getClient();
 
         // get prefix from config
-        this.prefix = config.prefix;
+        this._prefix = config.prefix;
     }
 
     public async evalMessage(msg: Message) {
@@ -23,23 +20,23 @@ export default class messageListener {
         // return if msg is from bot or not sent in a guild
         if (msg.author.bot || !msg.guild) return;
 
-        if (msg.content.startsWith(`<@${this.client.user.id}>`) || msg.content.startsWith(`<@!${this.client.user.id}`)) {
-            msg.channel.send(`My prefix on this server is \`${this.prefix}\`\nGet a list of commands with \`${this.prefix}help\``);
+        if (msg.content.startsWith(`<@${this._client.user.id}>`) || msg.content.startsWith(`<@!${this._client.user.id}`)) {
+            msg.channel.send(`My prefix on this server is \`${this._prefix}\`\nGet a list of commands with \`${this._prefix}help\``);
             return;
         }
 
-        if (!msg.content.toLowerCase().startsWith(this.prefix.toLowerCase())) return;
+        if (!msg.content.toLowerCase().startsWith(this._prefix.toLowerCase())) return;
 
-        let args = msg.content.slice(this.prefix.length).split(/ +/);
+        let args = msg.content.slice(this._prefix.length).split(/ +/);
         const commandName = args.shift().toLowerCase();
 
-        const command = this.BotClient.getAllCommands().get(commandName) || this.BotClient.getAllCommands().find(cmd => cmd.information.aliases && cmd.information.aliases.includes(commandName));
+        const command = this._botClient.getAllCommands().get(commandName) || this._botClient.getAllCommands().find(cmd => cmd.information.aliases && cmd.information.aliases.includes(commandName));
 
         // return if no command was found.
         if (!command) return;
 
         if (command.information.admin && !(msg.author.id === config.botOwnerID)) {
-            this.BotClient.getLogger().logError(msg, `:no_entry_sign: Only Jannik66 can execute this command.`);
+            this._botClient.getLogger().logError(msg, `:no_entry_sign: Only Jannik66 can execute this command.`);
             msg.delete();
             return;
         }
@@ -47,20 +44,20 @@ export default class messageListener {
         if (command.information.argsRequired && !args.length) {
             let reply = `:no_entry_sign: No arguments were provided`
 
-            reply += `\nUsage: \`${this.prefix}${command.information.usage}\``
+            reply += `\nUsage: \`${this._prefix}${command.information.usage}\``
 
             reply += `\nExample:`;
 
             for (let example of command.information.examples) {
-                reply += `\n\`${this.prefix}${example}\``;
+                reply += `\n\`${this._prefix}${example}\``;
             }
-            this.BotClient.getLogger().logError(msg, reply);
+            this._botClient.getLogger().logError(msg, reply);
             msg.delete();
             return;
         }
 
         try {
-            command.execute(msg, args, this.prefix);
+            command.execute(msg, args, this._prefix);
         } catch (error) {
             console.error(error);
             msg.channel.send(`Error...`);

@@ -1,14 +1,13 @@
-import { BotClient } from '../customInterfaces';
 import { Client, TextChannel, Message } from 'discord.js';
-import config from '../config';
 import { Repository } from 'typeorm';
-import { VoiceStats } from '../entities/voiceStats';
 import schedule from 'node-schedule';
 import moment from 'moment';
 
-export class StatMessages {
+import config from '../config';
+import { BotClient } from '../customInterfaces';
+import { VoiceStats } from '../entities/voiceStats';
 
-    private _botClient: BotClient;
+export class StatMessages {
 
     private _client: Client;
 
@@ -26,8 +25,7 @@ export class StatMessages {
         '5⃣'
     ]
 
-    public init(bot: BotClient) {
-        this._botClient = bot;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._voiceStatsRepository = this._botClient.getDBConnection().getVoiceStatsRepository();
     }

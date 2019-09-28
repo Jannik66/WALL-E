@@ -1,7 +1,8 @@
-import { BotCommand, BotClient, Song } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
-import { AudioPlayer } from '../audio/audioPlayer';
 import * as ytdl from 'ytdl-core';
+
+import { BotCommand, BotClient, Song } from '../customInterfaces';
+import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../logger';
 
 export default class playCommand implements BotCommand {
@@ -17,16 +18,13 @@ export default class playCommand implements BotCommand {
         examples: ['play https://youtu.be/GMb02tAqDRM']
     }
 
-    private _botClient: BotClient;
-
     private _client: Client;
 
     private _audioPlayer: AudioPlayer;
 
     private _logger: Logger;
 
-    public initCommand(botClient: BotClient) {
-        this._botClient = botClient;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._audioPlayer = this._botClient.getAudioPlayer();
         this._logger = this._botClient.getLogger();

@@ -1,41 +1,36 @@
-import { BotClient, Song } from '../customInterfaces';
-import { Client } from 'discord.js';
 import { EventEmitter } from 'events';
+
+import { BotClient, Song } from '../customInterfaces';
 
 export class MusicQueue extends EventEmitter {
 
-    BotClient: BotClient;
+    private _musicQueue: Array<Song> = [];
 
-    client: Client;
-
-    musicQueue: Array<Song> = [];
-
-    public init(bot: BotClient) {
-        this.BotClient = bot;
-        this.client = this.BotClient.getClient();
+    constructor(private _botClient: BotClient) {
+        super();
     }
 
     public addToQueue(song: Song) {
-        this.musicQueue.push(song);
-        this.emit('songAdded', this.musicQueue);
+        this._musicQueue.push(song);
+        this.emit('songAdded', this._musicQueue);
     }
 
     public proceedToNextSong() {
-        this.musicQueue.shift();
-        if (this.musicQueue.length > 0) {
-            this.emit('proceededToNextSong', this.musicQueue);
+        this._musicQueue.shift();
+        if (this._musicQueue.length > 0) {
+            this.emit('proceededToNextSong', this._musicQueue);
         } else {
-            this.emit('queueCleared', this.musicQueue);
+            this.emit('queueCleared', this._musicQueue);
         }
     }
 
     public clearQueue() {
-        this.musicQueue = [];
-        this.emit('queueCleared', this.musicQueue);
+        this._musicQueue = [];
+        this.emit('queueCleared', this._musicQueue);
     }
 
     public getQueue() {
-        return this.musicQueue;
+        return this._musicQueue;
     }
 
 }

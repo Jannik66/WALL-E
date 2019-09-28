@@ -1,16 +1,16 @@
-import { BotClient, Song } from '../customInterfaces';
+import fs from 'fs';
+
 import { Client, Message, StreamDispatcher, VoiceConnection, VoiceChannel } from 'discord.js';
 import * as ytdl from 'ytdl-core';
 // @ts-ignore
 import miniget from 'miniget';
+
+import { BotClient, Song } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
 import { Logger } from '../logger';
-import fs from 'fs';
 import { MusicQueue } from './musicQueue';
 
 export class AudioPlayer {
-
-    private _botClient: BotClient;
 
     private _client: Client;
 
@@ -24,8 +24,7 @@ export class AudioPlayer {
 
     private _musicQueue: MusicQueue;
 
-    public init(botClient: BotClient) {
-        this._botClient = botClient;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._statusMessage = this._botClient.getStatusMessages();
         this._logger = this._botClient.getLogger();

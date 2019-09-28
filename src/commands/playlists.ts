@@ -1,8 +1,9 @@
-import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client, MessageEmbed, MessageReaction, User, CollectorFilter } from 'discord.js';
-import { Logger } from '../logger';
-import config from '../config';
 import moment from 'moment';
+
+import config from '../config';
+import { BotCommand, BotClient } from '../customInterfaces';
+import { Logger } from '../logger';
 import { Playlists } from '../entities/playlists';
 
 export default class playlistsCommand implements BotCommand {
@@ -18,8 +19,6 @@ export default class playlistsCommand implements BotCommand {
         examples: ['playlists [playlistname | id]']
     }
 
-    private _botClient: BotClient;
-
     private _client: Client;
 
     private _logger: Logger;
@@ -31,8 +30,7 @@ export default class playlistsCommand implements BotCommand {
         page: 1
     }
 
-    public initCommand(botClient: BotClient) {
-        this._botClient = botClient;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._logger = this._botClient.getLogger();
     }

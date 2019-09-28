@@ -1,15 +1,19 @@
 import { Client, Collection } from 'discord.js';
 import fs from 'fs';
+
 import config from './config';
+import { BotCommand, BotClient } from './customInterfaces';
+import { BotDatabase } from './DBConnection';
+import { Logger } from './logger';
+
 import readyListener from './listeners/readyListener';
 import messageListener from './listeners/messageListener';
-import { BotDatabase } from './DBConnection';
-import { BotCommand, BotClient } from './customInterfaces';
-import { AudioPlayer } from './audio/audioPlayer';
-import { Logger } from './logger';
-import { StatusMessages } from './messages/statusMessages';
-import { MusicQueue } from './audio/musicQueue';
 import voiceActivityListener from './listeners/voiceActivityListener';
+
+import { AudioPlayer } from './audio/audioPlayer';
+import { MusicQueue } from './audio/musicQueue';
+
+import { StatusMessages } from './messages/statusMessages';
 import { StatMessages } from './messages/statMessages';
 
 export class WALLEBot implements BotClient {
@@ -53,28 +57,16 @@ export class WALLEBot implements BotClient {
         });
 
         // create audioPlayer, logger and statusMessages
-        this._audioPlayer = new AudioPlayer();
-        this._logger = new Logger();
-        this._statusMessages = new StatusMessages();
-        this._statMessages = new StatMessages();
-        this._musicQueue = new MusicQueue();
+        this._musicQueue = new MusicQueue(this);
+        this._audioPlayer = new AudioPlayer(this);
+        this._logger = new Logger(this);
+        this._statusMessages = new StatusMessages(this);
+        this._statMessages = new StatMessages(this);
 
         // create listnerers
-        this._messageListener = new messageListener();
-        this._readyListener = new readyListener();
-        this._voiceActivityListener = new voiceActivityListener();
-
-        // init audioPlayer, logger and statusMessages
-        this._audioPlayer.init(this);
-        this._logger.init(this);
-        this._statusMessages.init(this);
-        this._statMessages.init(this);
-        this._musicQueue.init(this);
-
-        // init listeners
-        this._messageListener.init(this);
-        this._readyListener.init(this);
-        this._voiceActivityListener.init(this);
+        this._messageListener = new messageListener(this);
+        this._readyListener = new readyListener(this);
+        this._voiceActivityListener = new voiceActivityListener(this);
 
         // load all commands
         this.loadCommands();
@@ -125,8 +117,7 @@ export class WALLEBot implements BotClient {
 
         for (const file of COMMANDFILES) {
             const COMMAND = require(`./commands/${file}`).default;
-            const commandInstance = new COMMAND();
-            commandInstance.initCommand(this);
+            const commandInstance = new COMMAND(this);
             this._commands.set(commandInstance.information.name.toLowerCase(), commandInstance);
         }
     }

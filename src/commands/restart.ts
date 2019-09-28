@@ -1,9 +1,10 @@
-import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
-import { Logger } from '../logger';
 import { Repository } from 'typeorm';
+import moment from 'moment';
+
+import { BotCommand, BotClient } from '../customInterfaces';
+import { Logger } from '../logger';
 import { VoiceStats } from '../entities/voiceStats';
-import moment = require('moment');
 
 export default class leaveCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -18,16 +19,13 @@ export default class leaveCommand implements BotCommand {
         examples: ['restart']
     }
 
-    private _botClient: BotClient;
-
     private _client: Client;
 
     private _logger: Logger;
 
     private _voiceStatsRepository: Repository<VoiceStats>;
 
-    public initCommand(botClient: BotClient) {
-        this._botClient = botClient;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._logger = this._botClient.getLogger();
         this._voiceStatsRepository = this._botClient.getDBConnection().getVoiceStatsRepository();

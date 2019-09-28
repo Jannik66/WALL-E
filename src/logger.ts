@@ -1,13 +1,12 @@
-import { BotClient, Song } from './customInterfaces';
 import { Client, TextChannel, Message, MessageEmbed } from 'discord.js';
-import config from './config';
 import { Repository } from 'typeorm';
+
+import config from './config';
+import { BotClient, Song } from './customInterfaces';
 import { Songs } from './entities/songs';
 import { StatusMessages } from './messages/statusMessages';
 
 export class Logger {
-
-    private _botClient: BotClient;
 
     private _client: Client;
 
@@ -17,8 +16,7 @@ export class Logger {
 
     private _statusMessages: StatusMessages;
 
-    public init(botClient: BotClient) {
-        this._botClient = botClient;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._songRepsitory = this._botClient.getDBConnection().getSongsRepository();
         this._statusMessages = this._botClient.getStatusMessages();

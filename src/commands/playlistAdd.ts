@@ -1,9 +1,11 @@
-import { BotCommand, BotClient } from '../customInterfaces';
-import { Message, Client } from 'discord.js';
-import { Logger } from '../logger';
+
+import { Message, } from 'discord.js';
 import * as ytdl from 'ytdl-core';
-import { PlaylistSongs } from '../entities/playlistSongs';
+
 import config from '../config';
+import { BotCommand, BotClient } from '../customInterfaces';
+import { Logger } from '../logger';
+import { PlaylistSongs } from '../entities/playlistSongs';
 import { Playlists } from '../entities/playlists';
 
 export default class playlistAddCommand implements BotCommand {
@@ -19,15 +21,9 @@ export default class playlistAddCommand implements BotCommand {
         examples: ['playlistadd Litmusic https://youtu.be/GMb02tAqDRM']
     }
 
-    private _botClient: BotClient;
-
-    private _client: Client;
-
     private _logger: Logger;
 
-    public initCommand(botClient: BotClient) {
-        this._botClient = botClient;
-        this._client = this._botClient.getClient();
+    constructor(private _botClient: BotClient) {
         this._logger = this._botClient.getLogger();
     }
 

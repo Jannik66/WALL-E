@@ -1,7 +1,8 @@
-import { BotCommand, BotClient } from '../customInterfaces';
 import { Message, Client } from 'discord.js';
-import { AudioPlayer } from '../audio/audioPlayer';
+
+import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../logger';
+import { AudioPlayer } from '../audio/audioPlayer';
 import { MusicQueue } from '../audio/musicQueue';
 
 export default class skipCommand implements BotCommand {
@@ -17,8 +18,6 @@ export default class skipCommand implements BotCommand {
         examples: ['skip']
     }
 
-    private _botClient: BotClient;
-
     private _client: Client;
 
     private _audioPlayer: AudioPlayer;
@@ -27,8 +26,7 @@ export default class skipCommand implements BotCommand {
 
     private _musicQueue: MusicQueue;
 
-    public initCommand(botClient: BotClient) {
-        this._botClient = botClient;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._audioPlayer = this._botClient.getAudioPlayer();
         this._logger = this._botClient.getLogger();

@@ -1,17 +1,16 @@
-import { BotClient, Song } from '../customInterfaces';
-import { Client, TextChannel, Message, MessageEmbed } from 'discord.js';
-import config from '../config';
+import { Client, TextChannel, Message } from 'discord.js';
 import { Repository } from 'typeorm';
-import { Songs } from '../entities/songs';
 import moment from 'moment';
 import schedule, { Job } from 'node-schedule';
-import { MusicQueue } from '../audio/musicQueue';
 // @ts-ignore
 import progress from 'progress-string';
 
-export class StatusMessages {
+import config from '../config';
+import { BotClient, Song } from '../customInterfaces';
+import { Songs } from '../entities/songs';
+import { MusicQueue } from '../audio/musicQueue';
 
-    private _botClient: BotClient;
+export class StatusMessages {
 
     private _client: Client;
 
@@ -52,8 +51,7 @@ export class StatusMessages {
         ':keycap_ten:'
     ]
 
-    public init(bot: BotClient) {
-        this._botClient = bot;
+    constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._musicQueue = this._botClient.getMusicQueue();
         this._songsRepository = this._botClient.getDBConnection().getSongsRepository();

@@ -1,7 +1,8 @@
 import { Client, Collection, Message } from 'discord.js';
+
+import { Logger } from './logger';
 import { BotDatabase } from './DBConnection';
 import { AudioPlayer } from './audio/audioPlayer';
-import { Logger } from './logger';
 import { StatusMessages } from './messages/statusMessages';
 import { MusicQueue } from './audio/musicQueue';
 
@@ -35,7 +36,6 @@ export interface BotCommand {
         usage: string,
         examples: string[]
     },
-    initCommand(botClient: BotClient): void,
     afterInit?(): void,
     execute(msg: Message, args: string[], prefix: string): void
 }

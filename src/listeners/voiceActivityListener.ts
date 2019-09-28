@@ -6,16 +6,13 @@ import moment = require('moment');
 
 export default class voiceActivityListener {
 
-    BotClient: BotClient;
-
     client: Client;
 
     private _voiceStatsRepository: Repository<VoiceStats>;
 
-    public init(BotClient: BotClient) {
-        this.BotClient = BotClient;
-        this.client = this.BotClient.getClient();
-        this._voiceStatsRepository = this.BotClient.getDBConnection().getVoiceStatsRepository();
+    constructor(private _botClient: BotClient) {
+        this.client = this._botClient.getClient();
+        this._voiceStatsRepository = this._botClient.getDBConnection().getVoiceStatsRepository();
     }
 
     public voiceStateUpdate(oldState: VoiceState, newState: VoiceState) {

@@ -6,19 +6,17 @@ export default class readyListener {
 
     BotClient: BotClient;
 
-    public init(BotClient: BotClient) {
-        this.BotClient = BotClient;
-    }
+    constructor(private _botClient: BotClient) { }
 
     public async evalReady() {
-        console.log(`Logged in as ${this.BotClient.getClient().user.tag}`);
-        this.BotClient.afterInit();
+        console.log(`Logged in as ${this._botClient.getClient().user.tag}`);
+        this._botClient.afterInit();
         this._checkForVoiceConnections();
     }
 
     private _checkForVoiceConnections() {
         const now = new Date();
-        const BDCGuild = this.BotClient.getClient().guilds.get(config.BDCGuildID);
+        const BDCGuild = this._botClient.getClient().guilds.get(config.BDCGuildID);
         let voiceChannels: VoiceChannel[] = [];
         for (const channel of BDCGuild.channels) {
             if (channel[1].type === 'voice') {
@@ -30,7 +28,7 @@ export default class readyListener {
         for (const voiceChannel of voiceChannels) {
             for (const member of voiceChannel.members) {
                 if (!member[1].user.bot) {
-                    this.BotClient.getDBConnection().getVoiceStatsRepository().insert({ userID: member[1].id, voiceChannelID: voiceChannel.id, joinedTimeStamp: now });
+                    this._botClient.getDBConnection().getVoiceStatsRepository().insert({ userID: member[1].id, voiceChannelID: voiceChannel.id, joinedTimeStamp: now });
                 }
             }
         }
