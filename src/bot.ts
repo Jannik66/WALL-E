@@ -7,9 +7,10 @@ import { BotDatabase } from './DBConnection';
 import { BotCommand, BotClient } from './customInterfaces';
 import { AudioPlayer } from './audio/audioPlayer';
 import { Logger } from './logger';
-import { StatusMessages } from './statusMessages';
+import { StatusMessages } from './messages/statusMessages';
 import { MusicQueue } from './audio/musicQueue';
 import voiceActivityListener from './listeners/voiceActivityListener';
+import { StatMessages } from './messages/statMessages';
 
 export class WALLEBot implements BotClient {
     // Discord Client of the Bot
@@ -29,6 +30,8 @@ export class WALLEBot implements BotClient {
 
     // statusMessage updater which updates the message in the #wall-e channel
     private _statusMessages: StatusMessages;
+
+    private _statMessages: StatMessages;
 
     private _musicQueue: MusicQueue;
 
@@ -53,6 +56,7 @@ export class WALLEBot implements BotClient {
         this._audioPlayer = new AudioPlayer();
         this._logger = new Logger();
         this._statusMessages = new StatusMessages();
+        this._statMessages = new StatMessages();
         this._musicQueue = new MusicQueue();
 
         // create listnerers
@@ -64,6 +68,7 @@ export class WALLEBot implements BotClient {
         this._audioPlayer.init(this);
         this._logger.init(this);
         this._statusMessages.init(this);
+        this._statMessages.init(this);
         this._musicQueue.init(this);
 
         // init listeners
@@ -130,5 +135,6 @@ export class WALLEBot implements BotClient {
     public afterInit() {
         this._logger.afterInit();
         this._statusMessages.afterInit();
+        this._statMessages.afterInit();
     }
 }

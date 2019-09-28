@@ -1,11 +1,11 @@
-import { BotClient, Song } from './customInterfaces';
+import { BotClient, Song } from '../customInterfaces';
 import { Client, TextChannel, Message, MessageEmbed } from 'discord.js';
-import config from './config';
+import config from '../config';
 import { Repository } from 'typeorm';
-import { Songs } from './entities/songs';
+import { Songs } from '../entities/songs';
 import moment from 'moment';
 import schedule, { Job } from 'node-schedule';
-import { MusicQueue } from './audio/musicQueue';
+import { MusicQueue } from '../audio/musicQueue';
 // @ts-ignore
 import progress from 'progress-string';
 
@@ -17,7 +17,7 @@ export class StatusMessages {
 
     private _musicQueue: MusicQueue;
 
-    private _messageChannel: TextChannel;
+    private _dashboardChannel: TextChannel;
 
     private _nowPlayingMessage: Message;
 
@@ -62,12 +62,12 @@ export class StatusMessages {
     public async afterInit() {
         this._listenToQueue();
 
-        this._messageChannel = this._client.channels.get(config.dashboardChannelID) as TextChannel;
+        this._dashboardChannel = this._client.channels.get(config.dashboardChannelID) as TextChannel;
 
-        await this._messageChannel.messages.fetch();
-        this._nowPlayingMessage = this._messageChannel.messages.get(config.nowPlayingMessageID);
-        this._songsLeaderboardMessage = this._messageChannel.messages.get(config.songLeaderboardMessageID);
-        this._djsLeaderboardMessage = this._messageChannel.messages.get(config.djLeaderboardMessageID);
+        await this._dashboardChannel.messages.fetch();
+        this._nowPlayingMessage = this._dashboardChannel.messages.get(config.nowPlayingMessageID);
+        this._songsLeaderboardMessage = this._dashboardChannel.messages.get(config.songLeaderboardMessageID);
+        this._djsLeaderboardMessage = this._dashboardChannel.messages.get(config.djLeaderboardMessageID);
     }
 
     private _listenToQueue() {

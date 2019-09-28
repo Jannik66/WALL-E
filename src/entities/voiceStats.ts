@@ -11,4 +11,6 @@ export class VoiceStats {
     @Column('datetime') joinedTimeStamp: Date;
 
     @Column({ type: 'datetime', nullable: true }) leftTimeStamp: Date;
+
+    @Column({ type: 'int', nullable: true }) duration: number;
 }

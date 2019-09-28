@@ -3,7 +3,7 @@ import { Client, Message, StreamDispatcher, VoiceConnection, VoiceChannel } from
 import * as ytdl from 'ytdl-core';
 // @ts-ignore
 import miniget from 'miniget';
-import { StatusMessages } from '../statusMessages';
+import { StatusMessages } from '../messages/statusMessages';
 import { Logger } from '../logger';
 import fs from 'fs';
 import { MusicQueue } from './musicQueue';

@@ -3,6 +3,7 @@ import { Message, Client } from 'discord.js';
 import { Logger } from '../logger';
 import { Repository } from 'typeorm';
 import { VoiceStats } from '../entities/voiceStats';
+import moment = require('moment');
 
 export default class leaveCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -44,7 +45,8 @@ export default class leaveCommand implements BotCommand {
         const now = new Date();
         const stillConnected = await this._voiceStatsRepository.find({ where: { leftTimeStamp: null } });
         for (const connection of stillConnected) {
-            await this._voiceStatsRepository.update({ id: connection.id }, { leftTimeStamp: now });
+            const duration = Math.round(moment.duration(moment(now).diff(connection.joinedTimeStamp)).asSeconds());
+            await this._voiceStatsRepository.update({ id: connection.id }, { leftTimeStamp: now, duration });
         }
     }
 

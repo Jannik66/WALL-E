@@ -2,7 +2,7 @@ import { Client, Collection, Message } from 'discord.js';
 import { BotDatabase } from './DBConnection';
 import { AudioPlayer } from './audio/audioPlayer';
 import { Logger } from './logger';
-import { StatusMessages } from './statusMessages';
+import { StatusMessages } from './messages/statusMessages';
 import { MusicQueue } from './audio/musicQueue';
 
 /**
@@ -50,6 +50,8 @@ export interface BotConfig {
     nowPlayingMessageID: string,
     songLeaderboardMessageID: string,
     djLeaderboardMessageID: string,
+    hallOfBDCChannelID: string,
+    voiceStatsMessageID: string,
     BDCGuildID: string,
     botOwnerID: string,
     botToken: string,

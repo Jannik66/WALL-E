@@ -2,6 +2,7 @@ import { Client, VoiceState } from 'discord.js';
 import { BotClient } from '../customInterfaces';
 import { Repository } from 'typeorm';
 import { VoiceStats } from '../entities/voiceStats';
+import moment = require('moment');
 
 export default class voiceActivityListener {
 
@@ -44,7 +45,8 @@ export default class voiceActivityListener {
     public async logLeave(userID: string, timestamp: Date) {
         const statEntry = await this._voiceStatsRepository.findOne({ where: { userID: userID, leftTimeStamp: null } });
         if (statEntry) {
-            await this._voiceStatsRepository.update({ id: statEntry.id }, { leftTimeStamp: timestamp });
+            const duration = Math.round(moment.duration(moment(timestamp).diff(statEntry.joinedTimeStamp)).asSeconds());
+            await this._voiceStatsRepository.update({ id: statEntry.id }, { leftTimeStamp: timestamp, duration });
         }
     }
 

@@ -3,7 +3,7 @@ import { Client, TextChannel, Message, MessageEmbed } from 'discord.js';
 import config from './config';
 import { Repository } from 'typeorm';
 import { Songs } from './entities/songs';
-import { StatusMessages } from './statusMessages';
+import { StatusMessages } from './messages/statusMessages';
 
 export class Logger {
 
