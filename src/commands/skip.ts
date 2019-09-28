@@ -1,7 +1,7 @@
 import { Message, Client } from 'discord.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import { AudioPlayer } from '../audio/audioPlayer';
 import { MusicQueue } from '../audio/musicQueue';
 

@@ -1,10 +1,10 @@
 import { Client, TextChannel, Message, MessageEmbed } from 'discord.js';
 import { Repository } from 'typeorm';
 
-import config from './config';
-import { BotClient, Song } from './customInterfaces';
-import { Songs } from './entities/songs';
-import { StatusMessages } from './messages/statusMessages';
+import config from '../config';
+import { BotClient, Song } from '../customInterfaces';
+import { Songs } from '../entities/songs';
+import { StatusMessages } from '../messages/statusMessages';
 
 export class Logger {
 

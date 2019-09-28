@@ -3,7 +3,7 @@ import * as ytdl from 'ytdl-core';
 
 import { BotCommand, BotClient, Song } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 
 export default class playCommand implements BotCommand {
     public information: BotCommand['information'] = {

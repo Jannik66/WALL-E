@@ -7,7 +7,7 @@ import miniget from 'miniget';
 
 import { BotClient, Song } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import { MusicQueue } from './musicQueue';
 
 export class AudioPlayer {

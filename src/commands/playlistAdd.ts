@@ -4,7 +4,7 @@ import * as ytdl from 'ytdl-core';
 
 import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import { PlaylistSongs } from '../entities/playlistSongs';
 import { Playlists } from '../entities/playlists';
 

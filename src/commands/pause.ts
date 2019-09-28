@@ -2,7 +2,7 @@ import { Message, Client } from 'discord.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import { MusicQueue } from '../audio/musicQueue';
 
 export default class pauseCommand implements BotCommand {

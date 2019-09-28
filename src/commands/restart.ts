@@ -3,7 +3,7 @@ import { Repository } from 'typeorm';
 import moment from 'moment';
 
 import { BotCommand, BotClient } from '../customInterfaces';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import { VoiceStats } from '../entities/voiceStats';
 
 export default class leaveCommand implements BotCommand {

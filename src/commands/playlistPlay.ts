@@ -4,7 +4,7 @@ import shuffle from 'shuffle-array';
 import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import { Playlists } from '../entities/playlists';
 
 export default class playlistPlayCommand implements BotCommand {

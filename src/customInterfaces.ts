@@ -1,6 +1,6 @@
 import { Client, Collection, Message } from 'discord.js';
 
-import { Logger } from './logger';
+import { Logger } from './messages/logger';
 import { BotDatabase } from './DBConnection';
 import { AudioPlayer } from './audio/audioPlayer';
 import { StatusMessages } from './messages/statusMessages';

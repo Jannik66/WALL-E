@@ -1,7 +1,7 @@
 import { Message, Collection, MessageEmbed, Client } from 'discord.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import config from '../config';
 
 export default class helpCommand implements BotCommand {

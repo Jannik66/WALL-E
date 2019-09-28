@@ -3,7 +3,7 @@ import moment from 'moment';
 
 import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
-import { Logger } from '../logger';
+import { Logger } from '../messages/logger';
 import { Playlists } from '../entities/playlists';
 
 export default class playlistsCommand implements BotCommand {
