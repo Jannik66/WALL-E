@@ -16,8 +16,8 @@ export default class playlistPlayCommand implements BotCommand {
         argsRequired: true,
         admin: false,
         aliases: ['pp'],
-        usage: 'playlistplay {playlistname | id} [number of songs]',
-        examples: ['playlistplay MEMES 10']
+        usage: 'playlistplay {playlistname | id} [all | number of songs]',
+        examples: ['playlistplay MEMES 10', 'playlistplay MEMES all']
     }
 
     private _client: Client;
@@ -35,6 +35,10 @@ export default class playlistPlayCommand implements BotCommand {
     public async execute(msg: Message, args: string[], prefix: string) {
         let playlistIdentifier = args[0];
         let playlist: Playlists;
+        if (!args[1]) {
+            this._sendMessage(msg, `:x: ${msg.author.toString()}, please provide a quantity of songs. Use \`all\` to play the entire playlist.`);
+            return;
+        }
         if (playlistIdentifier.match(/^[0-9]*$/)) {
             playlist = await this._botClient.getDBConnection().getPlaylistsRepository().findOne({ where: { id: playlistIdentifier }, relations: ['songs'] });
             if (!playlist) {
@@ -49,7 +53,7 @@ export default class playlistPlayCommand implements BotCommand {
             }
         }
         if (playlist.songs.length === 0) {
-            this._sendMessage(msg, `:x: ${msg.author.toString()}, playlist as 0 songs. Bruh.`);
+            this._sendMessage(msg, `:x: ${msg.author.toString()}, playlist has 0 songs. Bruh.`);
             return;
         }
 
@@ -67,7 +71,12 @@ export default class playlistPlayCommand implements BotCommand {
         }
 
         let songs = shuffle(playlist.songs);
-        if (args[1]) {
+        if (args[1].toLowerCase() === 'all') {
+            embed.setTitle(`Enqueued ${playlist.songs.length} Songs from playlist ${playlist.name}.`);
+            for (const song of songs) {
+                this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length.toString() });
+            };
+        } else {
             if (!args[1].match(/^[0-9]*$/)) {
                 this._sendMessage(msg, `:x: ${msg.author.toString()}, please provide a valid number.`);
                 return;
@@ -80,11 +89,6 @@ export default class playlistPlayCommand implements BotCommand {
             for (let i = 0; i < count; i++) {
                 this._audioPlayer.addVideo(msg.member.voice.channel, { name: songs[i].name, requester: msg.author.id, id: songs[i].id, length: songs[i].length.toString() });
             }
-        } else {
-            embed.setTitle(`Enqueued ${playlist.songs.length} Songs from playlist ${playlist.name}.`);
-            for (const song of songs) {
-                this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length.toString() });
-            };
         }
         this._logger.logEmbed(embed);
         msg.delete();
