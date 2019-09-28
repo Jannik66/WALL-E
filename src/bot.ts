@@ -58,9 +58,9 @@ export class WALLEBot implements BotClient {
 
         // create audioPlayer, logger and statusMessages
         this._musicQueue = new MusicQueue(this);
-        this._audioPlayer = new AudioPlayer(this);
-        this._logger = new Logger(this);
         this._statusMessages = new StatusMessages(this);
+        this._logger = new Logger(this);
+        this._audioPlayer = new AudioPlayer(this);
         this._statMessages = new StatMessages(this);
 
         // create listnerers
