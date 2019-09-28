@@ -35,6 +35,11 @@ export default class playlistAddCommand implements BotCommand {
         const playlistIdentifier = args[0];
         let playlist: Playlists;
 
+        if (!args[1]) {
+            this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, please provide a valid youtube link.`);
+            return;
+        }
+
         const videoRegex = args[1].match(/(youtu\.be\/|youtube\.com\/(watch\?(.*&)?v=|(embed|v)\/))([^\?&"'>]+)/);
         let videoID: string;
 
