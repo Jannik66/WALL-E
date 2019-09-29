@@ -26,11 +26,14 @@ export default class readyListener {
             }
         }
         for (const voiceChannel of voiceChannels) {
-            for (const member of voiceChannel.members) {
-                if (!member[1].user.bot) {
-                    this._botClient.getDBConnection().getVoiceStatsRepository().insert({ userID: member[1].id, voiceChannelID: voiceChannel.id, joinedTimeStamp: now });
+            if (voiceChannel.members.filter((member) => !member.user.bot).size >= 2) {
+                for (const member of voiceChannel.members) {
+                    if (!member[1].user.bot) {
+                        this._botClient.getDBConnection().getVoiceStatsRepository().insert({ userID: member[1].id, voiceChannelID: voiceChannel.id, joinedTimeStamp: now });
+                    }
                 }
             }
+
         }
     }
 }
