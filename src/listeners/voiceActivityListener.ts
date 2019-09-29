@@ -43,7 +43,7 @@ export default class voiceActivityListener {
                         this.logJoin(member[1].user.id, newState.channel.id, timestamp);
                     }
                 }
-            } else {
+            } else if (oldState.channel && newState.channel) {
                 await this.logLeave(UserID, timestamp);
                 if (filteredOldVoiceChannelMembers.size < 2) {
                     const otherMembers = filteredOldVoiceChannelMembers.filter((member) => member.user.id !== UserID);
