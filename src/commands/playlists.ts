@@ -24,7 +24,7 @@ export default class playlistsCommand implements BotCommand {
     private _logger: Logger;
 
     private _reactionMsgOptions = {
-        limit: 30 * 1000,
+        limit: 5 * 60 * 1000,
         min: 1,
         max: 0,
         page: 1
