@@ -29,6 +29,11 @@ export class MusicQueue extends EventEmitter {
         this.emit('queueCleared', this._musicQueue);
     }
 
+    public clearUpcomingQueue() {
+        this._musicQueue = [this._musicQueue[0]];
+        this.emit('upcomingQueueCleared', this._musicQueue);
+    }
+
     public getQueue() {
         return this._musicQueue;
     }

@@ -89,6 +89,10 @@ export class StatusMessages {
             }
             this._removeSongPlaying();
         });
+        this._musicQueue.on('upcomingQueueCleared', (queue: Array<Song>) => {
+            this._messageUpdateJob.cancel();
+            this._updateNowPlayingSong(queue);
+        });
     }
 
     public _updateNowPlayingSong(queue: Array<Song>) {
