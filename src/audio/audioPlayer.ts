@@ -9,6 +9,8 @@ import { BotClient, Song } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
 import { Logger } from '../messages/logger';
 import { MusicQueue } from './musicQueue';
+import schedule, { Job } from 'node-schedule';
+import config from '../config';
 
 export class AudioPlayer {
 
@@ -24,11 +26,14 @@ export class AudioPlayer {
 
     private _musicQueue: MusicQueue;
 
+    private _leaveTimeout: NodeJS.Timeout;
+
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._statusMessage = this._botClient.getStatusMessages();
         this._logger = this._botClient.getLogger();
         this._musicQueue = this._botClient.getMusicQueue();
+        this._listenToQueue();
     }
 
     /**
@@ -39,7 +44,7 @@ export class AudioPlayer {
     public addVideo(voiceChannel: VoiceChannel, song: Song) {
         this._musicQueue.addToQueue(song);
         if (this._musicQueue.getQueue().length === 1) {
-            this.initConnection(voiceChannel);
+            this._initConnection(voiceChannel);
         }
     }
 
@@ -60,10 +65,16 @@ export class AudioPlayer {
      * Bot leaves the voice channel and the queue gets cleared
      * @param msg message wich requested to skip. Used to reference the author in the log channel.
      */
-    public leave(msg: Message) {
-        msg.guild.member(this._client.user).voice.channel.leave();
-        this._musicQueue.clearQueue();
-        this._logger.logLeave(msg);
+    public leave(msg?: Message) {
+        if (msg) {
+            msg.guild.member(this._client.user).voice.channel.leave();
+            this._logger.logLeave(msg.author);
+        } else {
+            if (this._client.guilds.get(config.BDCGuildID).member(this._client.user).voice.channel) {
+                this._client.guilds.get(config.BDCGuildID).member(this._client.user).voice.channel.leave();
+                this._logger.logLeave(this._client.user);
+            }
+        }
     }
 
     /**
@@ -90,18 +101,18 @@ export class AudioPlayer {
      * Init voice connection and start playing song
      * @param voiceChannel voice Channel to join
      */
-    private async initConnection(voiceChannel: VoiceChannel) {
+    private async _initConnection(voiceChannel: VoiceChannel) {
         if (!this._connection) {
             this._connection = await voiceChannel.join();
-            this.listenToConnectionEvents();
+            this._listenToConnectionEvents();
         }
-        this.loadAudioURL();
+        this._loadAudioURL();
     }
 
     /**
      * load video URL
      */
-    private async loadAudioURL() {
+    private async _loadAudioURL() {
         const info = await ytdl.getInfo(`https://youtu.be/${this._musicQueue.getQueue()[0].id}`);
         const audioUrl = info.formats.find((format) => {
             return format.audioBitrate === 128;
@@ -110,14 +121,14 @@ export class AudioPlayer {
         if (audioUrl.startsWith('https://manifest')) {
             miniget(audioUrl, (err: any, req: any, body: string) => {
                 let url = body.substring(body.indexOf('<BaseURL>') + 9, body.indexOf('</BaseURL>'));
-                this.play(url);
+                this._play(url);
             });
         } else {
-            this.play(audioUrl);
+            this._play(audioUrl);
         }
     }
 
-    private async play(Url: string) {
+    private async _play(Url: string) {
         this._logger.saveSong(this._musicQueue.getQueue()[0]);
         let audioStream = fs.createWriteStream('audioStream');
         miniget(Url).pipe(audioStream);
@@ -144,16 +155,29 @@ export class AudioPlayer {
         this._dispatcher.on('end', () => {
             this._musicQueue.proceedToNextSong();
             if (this._musicQueue.getQueue().length > 0) {
-                this.loadAudioURL();
+                this._loadAudioURL();
             }
         });
     }
 
-    private listenToConnectionEvents() {
+    private _listenToConnectionEvents() {
         // if the voice connection disconnects, clear queue and empty property
         this._connection.on('disconnect', () => {
             this._connection = null;
             this._musicQueue.clearQueue();
         })
+    }
+
+    private _listenToQueue() {
+        this._musicQueue.on('queueCleared', () => {
+            this._leaveTimeout = setTimeout(() => {
+                this.leave();
+            }, 5 * 60 * 1000);
+        });
+        this._musicQueue.on('songAdded', () => {
+            if (this._leaveTimeout) {
+                clearTimeout(this._leaveTimeout);
+            }
+        });
     }
 }

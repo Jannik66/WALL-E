@@ -20,13 +20,13 @@ export class MusicQueue extends EventEmitter {
         if (this._musicQueue.length > 0) {
             this.emit('proceededToNextSong', this._musicQueue);
         } else {
-            this.emit('queueCleared', this._musicQueue);
+            this.emit('queueCleared');
         }
     }
 
     public clearQueue() {
         this._musicQueue = [];
-        this.emit('queueCleared', this._musicQueue);
+        this.emit('queueCleared');
     }
 
     public clearUpcomingQueue() {

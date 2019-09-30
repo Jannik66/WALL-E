@@ -6,16 +6,21 @@ import moment = require('moment');
 
 export default class voiceActivityListener {
 
-    client: Client;
+    private _client: Client;
 
     private _voiceStatsRepository: Repository<VoiceStats>;
 
     constructor(private _botClient: BotClient) {
-        this.client = this._botClient.getClient();
+        this._client = this._botClient.getClient();
         this._voiceStatsRepository = this._botClient.getDBConnection().getVoiceStatsRepository();
     }
 
     public async voiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
+        if (oldState.guild.member(this._client.user.id).voice.channel && oldState.guild.member(this._client.user.id).voice.channel.members.filter((member) => !member.user.bot).size === 0) {
+            oldState.guild.member(this._client.user.id).voice.channel.leave();
+            this._botClient.getLogger().logLeave(this._client.user);
+        }
+
         const UserID = oldState.member.user.id;
         let filteredOldVoiceChannelMembers: Collection<string, GuildMember>;
         let filteredNewVoiceChannelMembers: Collection<string, GuildMember>;

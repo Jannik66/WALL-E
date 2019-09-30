@@ -1,4 +1,4 @@
-import { Client, TextChannel, Message, MessageEmbed } from 'discord.js';
+import { Client, TextChannel, Message, MessageEmbed, User } from 'discord.js';
 import { Repository } from 'typeorm';
 
 import config from '../config';
@@ -52,10 +52,10 @@ export class Logger {
     }
 
     // log leave
-    public logLeave(msg: Message) {
+    public logLeave(user: User) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setAuthor(`${user.username}`, `${user.avatarURL()}`);
         embed.setTimestamp(new Date());
 
         embed.setTitle(':no_entry_sign: Left');
