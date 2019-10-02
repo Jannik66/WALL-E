@@ -83,7 +83,11 @@ export class StatusMessages {
             this._songEndDate = moment().add(queue[0].length, 'seconds');
             this._updateNowPlayingSong(queue);
         });
-        this._musicQueue.on('queueCleared', (queue: Array<Song>) => {
+        this._musicQueue.on('queueShuffled', (queue: Array<Song>) => {
+            this._messageUpdateJob.cancel();
+            this._updateNowPlayingSong(queue);
+        });
+        this._musicQueue.on('queueCleared', () => {
             if (this._messageUpdateJob) {
                 this._messageUpdateJob.cancel();
             }

@@ -1,5 +1,7 @@
 import { EventEmitter } from 'events';
 
+import shuffle from 'shuffle-array';
+
 import { BotClient, Song } from '../customInterfaces';
 
 export class MusicQueue extends EventEmitter {
@@ -22,6 +24,15 @@ export class MusicQueue extends EventEmitter {
         } else {
             this.emit('queueCleared');
         }
+    }
+
+    public shuffleQueue() {
+        let playling = this._musicQueue[0];
+        let upcoming = [...this._musicQueue];
+        upcoming.shift();
+        upcoming = shuffle(upcoming);
+        this._musicQueue = [playling, ...upcoming];
+        this.emit('queueShuffled', this._musicQueue);
     }
 
     public clearQueue() {

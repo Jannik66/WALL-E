@@ -62,6 +62,16 @@ export class Logger {
         this._logChannel.send(embed);
     }
 
+    public logShuffle(msg: Message) {
+        let embed = new MessageEmbed();
+        embed.setColor(0x28A745);
+        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setTimestamp(new Date());
+
+        embed.setTitle(':1234: Shuffled the queue.');
+        this._logChannel.send(embed);
+    }
+
     public logClear(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);
