@@ -114,7 +114,7 @@ export class AudioPlayer {
      */
     private async _loadAudioURL() {
         const info = await ytdl.getInfo(`https://youtu.be/${this._musicQueue.getQueue()[0].id}`);
-        const audioUrl = info.formats.find((format) => {
+        const audioUrl = info.formats.find((format: any) => {
             return format.audioBitrate === 128;
         }).url;
 

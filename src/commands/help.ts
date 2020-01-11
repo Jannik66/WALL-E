@@ -44,7 +44,6 @@ export default class helpCommand implements BotCommand {
             embed.setTitle(`Commandinfo \`${command.information.name}\``);
             embed.addField(`Description`, `${command.information.description}`);
             embed.addField(`Category`, `${command.information.category}`);
-            embed.addField(`Usage`, `\`${prefix}${command.information.usage}\``);
             if (command.information.aliases.length > 0) {
                 let aliases: string;
                 for (let alias of command.information.aliases) {
@@ -56,6 +55,7 @@ export default class helpCommand implements BotCommand {
                 }
                 embed.addField(`Aliases`, `${aliases}`);
             }
+            embed.addField(`Usage`, `\`${prefix}${command.information.usage}\``);
             if (command.information.examples) {
                 let examples: string;
                 for (let example of command.information.examples) {
