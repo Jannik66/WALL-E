@@ -50,8 +50,6 @@ export interface BotConfig {
     nowPlayingMessageID: string,
     songLeaderboardMessageID: string,
     djLeaderboardMessageID: string,
-    hallOfBDCChannelID: string,
-    voiceStatsMessageID: string,
     BDCGuildID: string,
     botOwnerID: string,
     botToken: string,

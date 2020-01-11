@@ -7,13 +7,11 @@ import { BotDatabase } from './DBConnection';
 
 import readyListener from './listeners/readyListener';
 import messageListener from './listeners/messageListener';
-import voiceActivityListener from './listeners/voiceActivityListener';
 
 import { AudioPlayer } from './audio/audioPlayer';
 import { MusicQueue } from './audio/musicQueue';
 
 import { StatusMessages } from './messages/statusMessages';
-import { StatMessages } from './messages/statMessages';
 import { Logger } from './messages/logger';
 
 export class WALLEBot implements BotClient {
@@ -35,14 +33,11 @@ export class WALLEBot implements BotClient {
     // statusMessage updater which updates the message in the #wall-e channel
     private _statusMessages: StatusMessages;
 
-    private _statMessages: StatMessages;
-
     private _musicQueue: MusicQueue;
 
     // Listeners
     private _messageListener: messageListener;
     private _readyListener: readyListener;
-    private _voiceActivityListener: voiceActivityListener;
 
     // initial start method
     public async start() {
@@ -62,12 +57,10 @@ export class WALLEBot implements BotClient {
         this._statusMessages = new StatusMessages(this);
         this._logger = new Logger(this);
         this._audioPlayer = new AudioPlayer(this);
-        this._statMessages = new StatMessages(this);
 
         // create listnerers
         this._messageListener = new messageListener(this);
         this._readyListener = new readyListener(this);
-        this._voiceActivityListener = new voiceActivityListener(this);
 
         // load all commands
         this.loadCommands();
@@ -108,7 +101,6 @@ export class WALLEBot implements BotClient {
     private initEvents() {
         this._client.on('ready', async () => this._readyListener.evalReady());
         this._client.on('message', async (msg) => this._messageListener.evalMessage(msg));
-        this._client.on('voiceStateUpdate', async (oldState, newState) => this._voiceActivityListener.voiceStateUpdate(oldState, newState));
     }
 
     // load all commands
@@ -127,6 +119,5 @@ export class WALLEBot implements BotClient {
     public afterInit() {
         this._logger.afterInit();
         this._statusMessages.afterInit();
-        this._statMessages.afterInit();
     }
 }
