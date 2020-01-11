@@ -49,6 +49,18 @@ export class AudioPlayer {
     }
 
     /**
+     * Add a video to the queue, if it is the first one, start playing it
+     * @param voiceChannel voice Channel to join
+     * @param song requested song
+     */
+    public addVideoNow(voiceChannel: VoiceChannel, song: Song) {
+        this._musicQueue.addToFirstPlace(song);
+        if (this._musicQueue.getQueue().length === 1) {
+            this._initConnection(voiceChannel);
+        }
+    }
+
+    /**
      * Skips a song.
      * @param msg message wich requested to skip. Used to reference the author in the log channel.
      */

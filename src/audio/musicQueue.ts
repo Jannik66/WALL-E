@@ -17,6 +17,15 @@ export class MusicQueue extends EventEmitter {
         this.emit('songAdded', this._musicQueue);
     }
 
+    public addToFirstPlace(song: Song) {
+        if (this._musicQueue.length > 0) {
+            this._musicQueue.splice(1, 0, song);
+        } else {
+            this._musicQueue.push(song);
+        }
+        this.emit('songAdded', this._musicQueue);
+    }
+
     public proceedToNextSong() {
         this._musicQueue.shift();
         if (this._musicQueue.length > 0) {
