@@ -156,7 +156,9 @@ export class AudioPlayer {
     }
 
     private async _play(Url: string) {
-        this._logger.saveSong(this._musicQueue.getQueue()[0]);
+        if (!this._musicQueue.loop.enabled) {
+            this._logger.saveSong(this._musicQueue.getQueue()[0]);
+        }
         let audioStream = fs.createWriteStream('audioStream');
         miniget(Url).pipe(audioStream);
 
