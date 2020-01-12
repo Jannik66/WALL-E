@@ -31,10 +31,7 @@ export class Logger {
 
     // log song request
     public logSong(msg: Message, song: Song) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x007BFF);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x007BFF');
 
         embed.addField(song.name, `https://youtu.be/${song.id}`);
         this._logChannel.send(embed);
@@ -42,10 +39,7 @@ export class Logger {
 
     // log skip
     public logSkip(msg: Message) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':fast_forward: Skipped');
         this._logChannel.send(embed);
@@ -53,30 +47,21 @@ export class Logger {
 
     // log leave
     public logLeave(user: User) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${user.username}`, `${user.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(user.username, user.avatarURL(), '0x28A745');
 
         embed.setTitle(':no_entry_sign: Left');
         this._logChannel.send(embed);
     }
 
     public logShuffle(msg: Message) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':1234: Shuffled the queue.');
         this._logChannel.send(embed);
     }
 
     public logLoop(msg: Message, enable: boolean, entireQueue: boolean) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         if (enable && entireQueue) {
             embed.setTitle(':repeat: Enabled Loop for the entire queue.');
@@ -90,10 +75,7 @@ export class Logger {
     }
 
     public logClear(msg: Message) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':no_entry_sign: Cleared the upcoming queue.');
         this._logChannel.send(embed);
@@ -101,10 +83,7 @@ export class Logger {
 
     // log pause
     public logPause(msg: Message) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':pause_button: Paused');
         this._logChannel.send(embed);
@@ -112,10 +91,7 @@ export class Logger {
 
     // log resume
     public logResume(msg: Message) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':arrow_forward: Resumed');
         this._logChannel.send(embed);
@@ -127,10 +103,7 @@ export class Logger {
     }
 
     public logSuccess(msg: Message, content: string) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(content);
         this._logChannel.send(embed);
@@ -145,30 +118,22 @@ export class Logger {
     }
 
     public async logRestart(msg: Message, ) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':gear: Restarting...');
         await this._logChannel.send(embed);
     }
 
     public async logStop(msg: Message) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':octagonal_sign: Stopping...');
         await this._logChannel.send(embed);
     }
 
     public logEval(msg: Message, args: string[], success: boolean, output: string) {
-        let embed = new MessageEmbed();
-        embed.setColor(0x28A745);
-        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
-        embed.setTimestamp(new Date());
+        const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
+
         embed.setTitle('\`EVAL:\` ' + `\`${args.join(" ")}\`` + `\n${success ? '\`SUCCESS\`' : '\`ERROR\`'}`);
         if (output.length < 2048) {
             embed.setDescription(output);
@@ -188,6 +153,15 @@ export class Logger {
         }
         this._statusMessages.updateSongLeaderboard();
         this._statusMessages.updateDJLeaderboard();
+    }
+
+    private _createEmbed(username: string, avatarURL: string, color: string): MessageEmbed {
+        const embed = new MessageEmbed();
+        embed.setColor(color);
+        embed.setAuthor(`${username}`, `${avatarURL}`);
+        embed.setTimestamp(new Date());
+
+        return embed;
     }
 
     public afterInit() {

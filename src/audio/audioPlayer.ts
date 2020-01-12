@@ -2,7 +2,6 @@ import fs from 'fs';
 
 import { Client, Message, StreamDispatcher, VoiceConnection, VoiceChannel } from 'discord.js';
 import * as ytdl from 'ytdl-core';
-// @ts-ignore
 import miniget from 'miniget';
 
 import { BotClient, Song } from '../customInterfaces';

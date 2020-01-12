@@ -1,7 +1,6 @@
-import { Message, Client } from 'discord.js';
-import * as ytdl from 'ytdl-core';
+import { Message } from 'discord.js';
 
-import { BotCommand, BotClient, Song } from '../customInterfaces';
+import { BotCommand, BotClient } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../messages/logger';
 

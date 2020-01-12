@@ -1,6 +1,4 @@
 import { Message, Client } from 'discord.js';
-import { Repository } from 'typeorm';
-import moment from 'moment';
 
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';

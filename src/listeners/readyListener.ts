@@ -1,6 +1,4 @@
 import { BotClient } from '../customInterfaces';
-import config from '../config';
-import { VoiceChannel } from 'discord.js';
 
 export default class readyListener {
 
