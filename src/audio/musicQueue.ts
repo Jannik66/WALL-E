@@ -8,6 +8,8 @@ export class MusicQueue extends EventEmitter {
 
     private _musicQueue: Array<Song> = [];
 
+    public loop: { enabled: boolean, entireQueue: boolean } = { enabled: false, entireQueue: false };
+
     constructor(private _botClient: BotClient) {
         super();
     }
@@ -26,11 +28,17 @@ export class MusicQueue extends EventEmitter {
         this.emit('songAdded', this._musicQueue);
     }
 
-    public proceedToNextSong() {
-        this._musicQueue.shift();
+    public proceedToNextSong(skipped: boolean) {
+        if (this.loop.entireQueue) {
+            this._musicQueue.push(this._musicQueue[0]);
+            this._musicQueue.shift();
+        } else if (!this.loop.enabled || skipped) {
+            this._musicQueue.shift();
+        }
         if (this._musicQueue.length > 0) {
             this.emit('proceededToNextSong', this._musicQueue);
         } else {
+            this.loop = { enabled: false, entireQueue: false };
             this.emit('queueCleared');
         }
     }
@@ -44,8 +52,14 @@ export class MusicQueue extends EventEmitter {
         this.emit('queueShuffled', this._musicQueue);
     }
 
+    public changeLoop(enable: boolean, entireQueue: boolean) {
+        this.loop = { enabled: enable, entireQueue: enable ? entireQueue : false };
+        this.emit('updatedLoop', this._musicQueue);
+    }
+
     public clearQueue() {
         this._musicQueue = [];
+        this.loop = { enabled: false, entireQueue: false };
         this.emit('queueCleared');
     }
 

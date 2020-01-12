@@ -97,12 +97,19 @@ export class StatusMessages {
             this._messageUpdateJob.cancel();
             this._updateNowPlayingSong(queue);
         });
+        this._musicQueue.on('updatedLoop', (queue: Array<Song>) => {
+            this._messageUpdateJob.cancel();
+            this._updateNowPlayingSong(queue);
+        });
     }
 
     public _updateNowPlayingSong(queue: Array<Song>) {
         this._playingNowString = '';
 
         this._playingNowString += `<:disc:622750303862915082> Now playing <:disc:622750303862915082>\n\n`;
+        if (this._musicQueue.loop.enabled && !this._musicQueue.loop.entireQueue) {
+            this._playingNowString += `:repeat_one:`;
+        }
         this._playingNowString += `:dvd: **${queue[0].name}**\n`;
         this._playingNowString += `https://youtu.be/${queue[0].id}\n\n`;
 
@@ -150,7 +157,7 @@ export class StatusMessages {
         comingQueue.shift();
         let duration = moment.duration(comingQueue.map((value) => parseInt(value.length)).reduce((a, b) => a + b, 0), 'seconds');
         let durationString = this._formatDuration(duration);
-        let comingUpString = comingQueue.length > 0 ? `\n\n**Coming up** | Total Duration: **${durationString}**\n` : '';
+        let comingUpString = comingQueue.length > 0 ? `\n\n${this._musicQueue.loop.entireQueue ? ':repeat: ' : ''}**Coming up** | Total Duration: **${durationString}**\n` : '';
 
         if (comingQueue.length > 20) {
             for (let i = 0; i < 20; i++) {

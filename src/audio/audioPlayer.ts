@@ -9,7 +9,6 @@ import { BotClient, Song } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
 import { Logger } from '../messages/logger';
 import { MusicQueue } from './musicQueue';
-import schedule, { Job } from 'node-schedule';
 import config from '../config';
 
 export class AudioPlayer {
@@ -27,6 +26,8 @@ export class AudioPlayer {
     private _musicQueue: MusicQueue;
 
     private _leaveTimeout: NodeJS.Timeout;
+
+    private _skipped: boolean;
 
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
@@ -62,10 +63,11 @@ export class AudioPlayer {
 
     /**
      * Skips a song.
-     * @param msg message wich requested to skip. Used to reference the author in the log channel.
+     * @param msg message which requested to skip. Used to reference the author in the log channel.
      */
     public skip(msg: Message) {
         if (this._dispatcher) {
+            this._skipped = true;
             this._dispatcher.end();
             this._logger.logSkip(msg);
         } else {
@@ -75,7 +77,7 @@ export class AudioPlayer {
 
     /**
      * Bot leaves the voice channel and the queue gets cleared
-     * @param msg message wich requested to skip. Used to reference the author in the log channel.
+     * @param msg message which requested to skip. Used to reference the author in the log channel.
      */
     public leave(msg?: Message) {
         if (msg) {
@@ -91,7 +93,7 @@ export class AudioPlayer {
 
     /**
      * Pauses or resumes the dispatcher
-     * @param msg message wich requested to skip. Used to reference the author in the log channel.
+     * @param msg message which requested to skip. Used to reference the author in the log channel.
      */
     public pause(msg: Message) {
         if (this._dispatcher) {
@@ -104,6 +106,20 @@ export class AudioPlayer {
                 this._logger.logPause(msg);
                 this._statusMessage.pause();
             }
+        } else {
+            this._logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
+        }
+    }
+
+    /**
+     * Change loop parameter (enable or disable, one song or entire queue)
+     * @param msg message which requested to skip. Used to reference the author in the log channel.
+     * @param entireQueue if entire queue has to be looped.
+     */
+    public loop(msg: Message, entireQueue: boolean) {
+        if (this._dispatcher) {
+            this._musicQueue.changeLoop(entireQueue ? true : !this._musicQueue.loop.enabled, entireQueue);
+            this._logger.logLoop(msg, this._musicQueue.loop.enabled, entireQueue);
         } else {
             this._logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
         }
@@ -165,7 +181,10 @@ export class AudioPlayer {
 
         // if dispatcher ends, proceed to next song
         this._dispatcher.on('end', () => {
-            this._musicQueue.proceedToNextSong();
+            this._musicQueue.proceedToNextSong(this._skipped);
+            if (this._skipped) {
+                this._skipped = false;
+            }
             if (this._musicQueue.getQueue().length > 0) {
                 this._loadAudioURL();
             }

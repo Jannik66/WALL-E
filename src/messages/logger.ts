@@ -72,6 +72,23 @@ export class Logger {
         this._logChannel.send(embed);
     }
 
+    public logLoop(msg: Message, enable: boolean, entireQueue: boolean) {
+        let embed = new MessageEmbed();
+        embed.setColor(0x28A745);
+        embed.setAuthor(`${msg.author.username}`, `${msg.author.avatarURL()}`);
+        embed.setTimestamp(new Date());
+
+        if (enable && entireQueue) {
+            embed.setTitle(':repeat: Enabled Loop for the entire queue.');
+        } else if (enable) {
+            embed.setTitle(':repeat_one: Enabled Loop for one song.');
+        } else {
+            embed.setTitle(':arrow_right: Disabled loop.');
+        }
+
+        this._logChannel.send(embed);
+    }
+
     public logClear(msg: Message) {
         let embed = new MessageEmbed();
         embed.setColor(0x28A745);

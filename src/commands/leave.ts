@@ -12,7 +12,7 @@ export default class leaveCommand implements BotCommand {
         description: 'Leaves the voice channel and clears the queue.',
         argsRequired: false,
         admin: false,
-        aliases: ['l', 'stop', 'disconnect'],
+        aliases: ['stop', 'disconnect'],
         usage: 'leave',
         examples: ['leave']
     }

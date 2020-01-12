@@ -16,7 +16,7 @@ export default class playlistPlayCommand implements BotCommand {
         argsRequired: true,
         admin: false,
         aliases: ['pp'],
-        usage: 'playlistplay {playlistname | id} [all | number of songs]',
+        usage: 'playlistplay {playlistname | id} {all | number of songs}',
         examples: ['playlistplay MEMES 10', 'playlistplay MEMES all']
     }
 
