@@ -5,7 +5,7 @@ import { BotCommand, BotClient, Song } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../messages/logger';
 
-export default class playCommand implements BotCommand {
+export default class playNowCommand implements BotCommand {
     public information: BotCommand['information'] = {
         id: 13,
         name: 'playnow',

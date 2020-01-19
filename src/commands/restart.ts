@@ -3,7 +3,7 @@ import { Message, Client } from 'discord.js';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
 
-export default class leaveCommand implements BotCommand {
+export default class restartCommand implements BotCommand {
     public information: BotCommand['information'] = {
         id: 5,
         name: 'restart',
