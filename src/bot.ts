@@ -1,4 +1,4 @@
-import { Client, Collection } from 'discord.js';
+import { Client, Collection, Message } from 'discord.js';
 import fs from 'fs';
 
 import config from './config';
@@ -100,7 +100,10 @@ export class WALLEBot implements BotClient {
     // init event listeners
     private initEvents() {
         this._client.on('ready', async () => this._readyListener.evalReady());
-        this._client.on('message', async (msg) => this._messageListener.evalMessage(msg));
+        this._client.on('message', async (msg) => {
+            if (msg.partial) return;
+            this._messageListener.evalMessage(msg as Message);
+        });
     }
 
     // load all commands
