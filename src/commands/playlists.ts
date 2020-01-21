@@ -23,6 +23,8 @@ export default class playlistsCommand implements BotCommand {
 
     private _logger: Logger;
 
+    private songsPerSite = 8;
+
     private _reactionMsgOptions = {
         limit: 5 * 60 * 1000,
         min: 1,
@@ -69,7 +71,7 @@ export default class playlistsCommand implements BotCommand {
                 this._sendEmbedMessage(msg, embed);
                 return;
             }
-            if (playlist.songs.length > 10) {
+            if (playlist.songs.length > this.songsPerSite) {
                 this._initReactionMessage(msg, playlist, embed);
             } else {
                 let songField = '';
@@ -123,7 +125,7 @@ export default class playlistsCommand implements BotCommand {
     private async _initReactionMessage(msg: Message, playlist: Playlists, preparedEmbed: MessageEmbed) {
         let pages: MessageEmbed[] = [];
         this._reactionMsgOptions.page = 1;
-        this._reactionMsgOptions.max = Math.ceil(playlist.songs.length / 10);
+        this._reactionMsgOptions.max = Math.ceil(playlist.songs.length / this.songsPerSite);
 
         for (let i = 1; i <= this._reactionMsgOptions.max; i++) {
             pages[i] = new MessageEmbed(preparedEmbed);
@@ -133,9 +135,9 @@ export default class playlistsCommand implements BotCommand {
         let songField: string;
         for (let i = 1; i <= this._reactionMsgOptions.max; i++) {
             songField = '';
-            let soungCount = i === this._reactionMsgOptions.max && playlist.songs.length % 10 !== 0 ? playlist.songs.length % 10 : 10;
+            let soungCount = i === this._reactionMsgOptions.max && playlist.songs.length % this.songsPerSite !== 0 ? playlist.songs.length % this.songsPerSite : this.songsPerSite;
             for (let a = 0; a < soungCount; a++) {
-                songField += `${playlist.songs[(i - 1) * 10 + a].playlistIndex}. ${playlist.songs[(i - 1) * 10 + a].name}\n▬▬ https://youtu.be/${playlist.songs[(i - 1) * 10 + a].id}\n`;
+                songField += `${playlist.songs[(i - 1) * this.songsPerSite + a].playlistIndex}. ${playlist.songs[(i - 1) * this.songsPerSite + a].name}\n▬▬ https://youtu.be/${playlist.songs[(i - 1) * this.songsPerSite + a].id}\n`;
             }
             pages[i].addField('Songs', songField);
         }
