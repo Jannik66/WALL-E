@@ -6,6 +6,8 @@ import { Logger } from '../messages/logger';
 import config from '../config';
 import { Repository } from 'typeorm';
 import { Songs } from '../entities/songs';
+import { PlaylistSongs } from '../entities/playlistSongs';
+import { Playlists } from '../entities/playlists';
 
 export default class statsCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -25,16 +27,20 @@ export default class statsCommand implements BotCommand {
     private _client: Client;
 
     private _songsRepository: Repository<Songs>;
+    private _playlistRepository: Repository<Playlists>;
 
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._logger = this._botClient.getLogger();
         this._songsRepository = this._botClient.getDBConnection().getSongsRepository();
+        this._playlistRepository = this._botClient.getDBConnection().getPlaylistsRepository();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
         const songs = await this._songsRepository.find();
         let songsCount = songs.map(song => song.timesPlayed).reduce((a, b) => a + b);
+        let playlists = await this._playlistRepository.find({ relations: ['songs'] });
+        const playlistSongCount = playlists.map(playlist => playlist.songs).map(songs => songs.length).reduce((a, b) => a + b);
 
         const statEmbed = new MessageEmbed();
         statEmbed.setColor(0xEDD5BD);
@@ -43,14 +49,15 @@ export default class statsCommand implements BotCommand {
         statEmbed.setTitle(`:part_alternation_mark: Stats`);
 
         statEmbed.addField(`:stopwatch: Uptime`, `${this.formatUptime(process.uptime())}`, true);
-        statEmbed.addField(`:dvd: Total Songs played`, `${songsCount}`, true);
-        // add: total playlists
-        // add: total songs in playlists
-        // sort with empty fields (addBlankField)
 
         statEmbed.addField(`<:djs:669263957847965729>Discord.js Version`, `v${version}`, true);
-        statEmbed.addField(`<:nodejs:669263936998342716>Node.js Version`, `${process.version}`, true)
+        statEmbed.addField(`<:nodejs:669263936998342716>Node.js Version`, `${process.version}`, true);
         statEmbed.addField(`:minidisc: Used memory`, `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} mb`, true);
+
+        statEmbed.addBlankField();
+        statEmbed.addField(`:dvd: Total Songs played`, `${songsCount}`, true);
+        statEmbed.addField(`:notepad_spiral: Total Playlists`, `${playlists.length}`, true);
+        statEmbed.addField(`:cd: Total Songs in Playlists`, `${playlistSongCount}`, true);
 
         this._sendEmbedMessage(msg, statEmbed);
     }
