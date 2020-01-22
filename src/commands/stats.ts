@@ -55,9 +55,9 @@ export default class statsCommand implements BotCommand {
         statEmbed.addField(`:minidisc: Used memory`, `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} mb`, true);
 
         statEmbed.addBlankField();
-        statEmbed.addField(`:dvd: Total Songs played`, `${songsCount}`, true);
+        statEmbed.addField(`:cd: Total Songs played`, `${songsCount}`, true);
         statEmbed.addField(`:notepad_spiral: Total Playlists`, `${playlists.length}`, true);
-        statEmbed.addField(`:cd: Total Songs in Playlists`, `${playlistSongCount}`, true);
+        statEmbed.addField(`:dvd: Total Songs in Playlists`, `${playlistSongCount}`, true);
 
         this._sendEmbedMessage(msg, statEmbed);
     }
