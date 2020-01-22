@@ -7,6 +7,8 @@ export class Playlists {
 
     @Column('varchar', { unique: true }) name: string;
 
+    //@Column('boolean') inRandom: boolean;
+
     @OneToMany(type => PlaylistSongs, song => song.playlist)
     songs: PlaylistSongs[];
 }
