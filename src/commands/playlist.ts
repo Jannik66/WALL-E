@@ -66,26 +66,22 @@ export default class playlistCommand implements BotCommand {
         embed.setTitle(playlist.name);
         embed.addField(`Number of songs`, `${playlist.songs.length}`);
 
-        // is in random included:
-        //embed.addField(`Is present in random command`, `${playlist.isInRandom ? 'Hell yeah' : 'Um noo...'}`);
+        embed.addField(`Gets noticed in random command`, `${playlist.inRandom ? 'Hell yeah' : 'Um noo...'}`);
 
         embed.addBlankField();
-        embed.addField('Menu', `📀: List songs\n✏️: Rename playlist\n❌: Delete message`);
-        //embed.addField('Menu', `📀: List songs\n✏️: Rename playlist\n🎲: ${playlist.isInRandom ? 'Exlude from random command' : 'Include from random command'}\n❌: Delete message`);
+        embed.addField('Menu', `📀: List songs\n✏️: Rename playlist\n🎲: ${playlist.inRandom ? 'Exlude from random command' : 'Include from random command'}\n❌: Delete message`);
 
         const m = await msg.channel.send(embed);
 
         const filter = (reaction: MessageReaction, user: User) => {
-            return ['📀', '✏️',
-                //'🎲',
-                '❌'].includes(reaction.emoji.name) && user.id == msg.author.id;
+            return ['📀', '✏️', '🎲', '❌'].includes(reaction.emoji.name) && user.id == msg.author.id;
         };
 
         this._awaitMenuReactions(msg.author.id, m, filter, playlist);
 
         await m.react('📀');
         await m.react('✏️');
-        //await m.react('🎲');
+        await m.react('🎲');
         await m.react('❌');
     }
 
@@ -101,10 +97,10 @@ export default class playlistCommand implements BotCommand {
                     // remove all reactions
                     await m.reactions.removeAll();
                     this._renamePlaylist(m, playlist, authorID);
-                    /*} else if (reaction.emoji.name === '🎲') {
-                        // remove all reactions
-                        await m.reactions.removeAll();*/
-
+                } else if (reaction.emoji.name === '🎲') {
+                    // remove all reactions
+                    await m.reactions.removeAll();
+                    this._changeRandomSetting(m, playlist, authorID);
                 } else if (reaction.emoji.name === '❌') {
                     // trash the message instantly, returning so the listener fully stops
                     return await m.delete();
@@ -264,9 +260,10 @@ export default class playlistCommand implements BotCommand {
     // change random setting
     // =============================================================================
 
-    /*private async _changeRandomSetting(msg: Message, playlist: Playlists, authorID: string) {
-
-    }*/
+    private async _changeRandomSetting(msg: Message, playlist: Playlist, authorID: string) {
+        await this._botClient.getDatabase().getPlaylistRepository().update({ id: playlist.id }, { inRandom: !playlist.inRandom });
+        msg.edit(`:white_check_mark: Successfully ${playlist.inRandom ? 'exlcuded' : 'included'} the playlist **${playlist.name}** ${playlist.inRandom ? 'from' : 'in'} the random command.`, { embed: null });
+    }
 
     // =============================================================================
     // Other functions

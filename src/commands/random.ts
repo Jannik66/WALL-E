@@ -42,7 +42,11 @@ export default class randomCommand implements BotCommand {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, please enter a valid number.`);
             return;
         } else {
-            playlists = await this._botClient.getDatabase().getPlaylistRepository().find({ relations: ['songs'] });
+            playlists = await this._botClient.getDatabase().getPlaylistRepository().find({ where: { inRandom: true }, relations: ['songs'] });
+        }
+        if (playlists.length === 0) {
+            this._sendMessage(msg, `:x: ${msg.author.toString()}, There are no playlists to select songs from. Maybe all are excluded from the random command?`);
+            return;
         }
         const totalSongs = playlists.map((playlist) => playlist.songs.length).reduce((a, b) => a + b);
         const allSongs = playlists.map((playlist) => playlist.songs).reduce((a, b) => a.concat(b));
@@ -69,7 +73,7 @@ export default class randomCommand implements BotCommand {
         songs = songs.slice(0, numberOfSongs);
         embed.setTitle(`Enqueued ${numberOfSongs} random Songs.`);
         for (const song of songs) {
-            this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length });
+            this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.songId, length: song.length });
         };
         this._logger.logEmbed(embed);
         msg.delete();

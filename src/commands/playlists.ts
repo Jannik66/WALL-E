@@ -39,7 +39,7 @@ export default class playlistsCommand implements BotCommand {
             const songCount = playlist.songs.length;
             const duration = moment.duration(playlist.songs.map((value) => value.length).reduce((a, b) => a + b, 0), 'seconds');
             const durationString = this._formatDuration(duration);
-            embed.addField(`${playlist.id} - ${playlist.name}`, `**${songCount}** Songs. Total length: **${durationString}**`);
+            embed.addField(`${playlist.id} - ${playlist.name}${playlist.inRandom ? ' | :game_die:' : ''}`, `**${songCount}** Songs. Total length: **${durationString}**`);
         }
         embed.setTitle(playlists.length === 0 ? 'No playlists found' : 'Playlists');
         this._sendEmbedMessage(msg, embed);
@@ -52,15 +52,6 @@ export default class playlistsCommand implements BotCommand {
         formattedDuration += duration.seconds() > 9 ? duration.seconds() : `0${duration.seconds()}`;
 
         return formattedDuration;
-    }
-
-    private _sendMessage(msg: Message, text: string) {
-        if (msg.channel.id === config.wallEChannelID) {
-            msg.channel.send(text);
-        } else {
-            msg.delete();
-            this._logger.logText(text);
-        }
     }
 
     private _sendEmbedMessage(msg: Message, embed: MessageEmbed) {
