@@ -136,7 +136,7 @@ export class Logger {
     public logEval(msg: Message, args: string[], success: boolean, output: string) {
         const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
-        embed.setTitle('\`EVAL:\` ' + `\`${args.join(" ")}\`` + `\n${success ? '\`SUCCESS\`' : '\`ERROR\`'}`);
+        embed.setTitle('\`EVAL:\` ' + `\`${args.join(' ')}\`` + `\n${success ? '\`SUCCESS\`' : '\`ERROR\`'}`);
         if (output.length < 2048) {
             embed.setDescription(output);
         } else {
