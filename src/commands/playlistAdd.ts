@@ -72,12 +72,12 @@ export default class playlistAddCommand implements BotCommand {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, sorry, but this fucking video is longer than 11 hours. Get some help.`);
                 return;
             }
-            if (playlist.songs && playlist.songs.find(song => song.id === videoID)) {
+            if (playlist.songs && playlist.songs.find(song => song.songId === videoID)) {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, the song ${info.title} already exists in ${playlist.name}`);
                 return;
             }
             const song = new PlaylistSong();
-            song.id = videoID;
+            song.songId = videoID;
             song.name = info.title;
             song.length = parseInt(info.length_seconds);
             if (playlist.songs) {

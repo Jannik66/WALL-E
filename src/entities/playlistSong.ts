@@ -1,9 +1,9 @@
-import { Entity, ManyToOne, PrimaryColumn, Column } from 'typeorm';
+import { Entity, ManyToOne, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { Playlist } from './playlist';
 
 @Entity()
 export class PlaylistSong {
-    @PrimaryColumn('varchar') id: string;
+    @PrimaryGeneratedColumn() id: number;
 
     @Column('varchar') songId: string;
 
