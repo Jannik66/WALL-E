@@ -4,9 +4,10 @@ import moment from 'moment';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
 import config from '../config';
-import { Repository } from 'typeorm';
+import { Repository, Connection } from 'typeorm';
 import { Playlist } from '../entities/playlist';
 import { UserSong } from '../entities/userSong';
+import { Song } from '../entities/song';
 
 export default class statsCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -25,21 +26,26 @@ export default class statsCommand implements BotCommand {
 
     private _client: Client;
 
+    private _connection: Connection;
     private _userSongRepository: Repository<UserSong>;
     private _playlistRepository: Repository<Playlist>;
 
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._logger = this._botClient.getLogger();
+        this._connection = this._botClient.getDatabase().getConnection();
         this._userSongRepository = this._botClient.getDatabase().getUserSongRepository();
         this._playlistRepository = this._botClient.getDatabase().getPlaylistRepository();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
-        const userSongs = await this._userSongRepository.find();
-        let songsCount = userSongs.map(userSongs => userSongs.timesPlayed).reduce((a, b) => a + b);
-        let playlists = await this._playlistRepository.find({ relations: ['songs'] });
+        const userSongs = await this._userSongRepository.find({ relations: ['song'] });
+        const songsPlayedCount = userSongs.map(userSongs => userSongs.timesPlayed).reduce((a, b) => a + b);
+        const songsPlayLength = userSongs.map(userSongs => userSongs.song.length).reduce((a, b) => a + b);
+        const playlists = await this._playlistRepository.find({ relations: ['songs'] });
         const playlistSongCount = playlists.map(playlist => playlist.songs).map(songs => songs.length).reduce((a, b) => a + b);
+        const songs = await this._connection.getRepository(Song).find();
+        const songCount = songs.length;
 
         const statEmbed = new MessageEmbed();
         statEmbed.setColor(0xEDD5BD);
@@ -47,21 +53,22 @@ export default class statsCommand implements BotCommand {
         statEmbed.setFooter('Pridefully serving the BDC-Server.');
         statEmbed.setTitle(`:part_alternation_mark: Stats`);
 
-        statEmbed.addField(`:stopwatch: Uptime`, `${this.formatUptime(process.uptime())}`, true);
+        statEmbed.addField(`:stopwatch: Uptime`, `${this.formatTime(process.uptime())}`, true);
 
         statEmbed.addField(`<:djs:669263957847965729>Discord.js Version`, `v${version}`, true);
         statEmbed.addField(`<:nodejs:669263936998342716>Node.js Version`, `${process.version}`, true);
         statEmbed.addField(`:minidisc: Used memory`, `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} mb`, true);
 
         statEmbed.addBlankField();
-        statEmbed.addField(`:cd: Total Songs played`, `${songsCount}`, true);
+        statEmbed.addField(`:dividers: Songs in database`, `${songCount}`, true);
         statEmbed.addField(`:notepad_spiral: Total Playlists`, `${playlists.length}`, true);
         statEmbed.addField(`:dvd: Total Songs in Playlists`, `${playlistSongCount}`, true);
+        statEmbed.addField(`:cd: Songs played`, `${songsPlayedCount}\n${this.formatTime(songsPlayLength)}`, true);
 
         this._sendEmbedMessage(msg, statEmbed);
-    }
+    };
 
-    formatUptime(seconds: number) {
+    formatTime(seconds: number) {
         let uptime = moment.duration(seconds, 'seconds');
         return (Math.floor(uptime.asMonths()) > 0 ? `${Math.floor(uptime.asMonths())}M ` : '') +
             (Math.floor(uptime.asMonths()) > 0 || uptime.days() > 0 ? `${uptime.days()}d ` : '') +
