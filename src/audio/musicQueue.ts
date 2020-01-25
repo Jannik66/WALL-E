@@ -2,11 +2,11 @@ import { EventEmitter } from 'events';
 
 import shuffle from 'shuffle-array';
 
-import { BotClient, Song } from '../customInterfaces';
+import { BotClient, QueueSong } from '../customInterfaces';
 
 export class MusicQueue extends EventEmitter {
 
-    private _musicQueue: Array<Song> = [];
+    private _musicQueue: Array<QueueSong> = [];
 
     public loop: { enabled: boolean, entireQueue: boolean } = { enabled: false, entireQueue: false };
 
@@ -14,12 +14,12 @@ export class MusicQueue extends EventEmitter {
         super();
     }
 
-    public addToQueue(song: Song) {
+    public addToQueue(song: QueueSong) {
         this._musicQueue.push(song);
         this.emit('songAdded', this._musicQueue);
     }
 
-    public addToFirstPlace(song: Song) {
+    public addToFirstPlace(song: QueueSong) {
         if (this._musicQueue.length > 0) {
             this._musicQueue.splice(1, 0, song);
         } else {

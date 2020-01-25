@@ -4,7 +4,7 @@ import { Client, Message, StreamDispatcher, VoiceConnection, VoiceChannel } from
 import * as ytdl from 'ytdl-core';
 import miniget from 'miniget';
 
-import { BotClient, Song } from '../customInterfaces';
+import { BotClient, QueueSong } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
 import { Logger } from '../messages/logger';
 import { MusicQueue } from './musicQueue';
@@ -41,7 +41,7 @@ export class AudioPlayer {
      * @param voiceChannel voice Channel to join
      * @param song requested song
      */
-    public addVideo(voiceChannel: VoiceChannel, song: Song) {
+    public addVideo(voiceChannel: VoiceChannel, song: QueueSong) {
         this._musicQueue.addToQueue(song);
         if (this._musicQueue.getQueue().length === 1) {
             this._initConnection(voiceChannel);
@@ -53,7 +53,7 @@ export class AudioPlayer {
      * @param voiceChannel voice Channel to join
      * @param song requested song
      */
-    public addVideoNow(voiceChannel: VoiceChannel, song: Song) {
+    public addVideoNow(voiceChannel: VoiceChannel, song: QueueSong) {
         this._musicQueue.addToFirstPlace(song);
         if (this._musicQueue.getQueue().length === 1) {
             this._initConnection(voiceChannel);

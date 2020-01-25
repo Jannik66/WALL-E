@@ -4,7 +4,7 @@ import moment from 'moment';
 import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
-import { Playlists } from '../entities/playlists';
+import { Playlist } from '../entities/playlist';
 
 export default class playlistCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -44,8 +44,8 @@ export default class playlistCommand implements BotCommand {
         embed.setAuthor(`${this._client.user.username}`, `${this._client.user.avatarURL()}`);
         embed.setFooter('Pridefully serving the BDC-Server.');
 
-        const playlists = await this._botClient.getDBConnection().getPlaylistsRepository().find({ relations: ['songs'] });
-        let playlist: Playlists;
+        const playlists = await this._botClient.getDatabase().getPlaylistRepository().find({ relations: ['songs'] });
+        let playlist: Playlist;
         if (playlistIdentifier.match(/^[0-9]*$/)) {
             playlist = playlists.find(val => val.id === parseInt(playlistIdentifier));
             if (!playlist) {
@@ -62,7 +62,7 @@ export default class playlistCommand implements BotCommand {
         this._initMenuReactionMessage(msg, playlist, embed);
     }
 
-    private async _initMenuReactionMessage(msg: Message, playlist: Playlists, embed: MessageEmbed) {
+    private async _initMenuReactionMessage(msg: Message, playlist: Playlist, embed: MessageEmbed) {
         embed.setTitle(playlist.name);
         embed.addField(`Number of songs`, `${playlist.songs.length}`);
 
@@ -89,7 +89,7 @@ export default class playlistCommand implements BotCommand {
         await m.react('❌');
     }
 
-    private async _awaitMenuReactions(authorID: string, m: Message, filter: CollectorFilter, playlist: Playlists) {
+    private async _awaitMenuReactions(authorID: string, m: Message, filter: CollectorFilter, playlist: Playlist) {
         m.awaitReactions(filter, { max: 1, time: this._reactionMsgOptions.limit, errors: ['time'] })
             .then(async (collected) => {
                 const reaction = collected.first();
@@ -121,7 +121,7 @@ export default class playlistCommand implements BotCommand {
     // Show Songs
     // =============================================================================
 
-    private _showSongs(msg: Message, playlist: Playlists, authorID: string) {
+    private _showSongs(msg: Message, playlist: Playlist, authorID: string) {
         let embed: MessageEmbed = new MessageEmbed();
         embed.setColor(0xEDD5BD);
         embed.setAuthor(`${this._client.user.username}`, `${this._client.user.avatarURL()}`);
@@ -131,27 +131,31 @@ export default class playlistCommand implements BotCommand {
         const duration = moment.duration(playlist.songs.map((value) => value.length).reduce((a, b) => a + b, 0), 'seconds');
         const durationString = this._formatDuration(duration);
         embed.setTitle(`Playlist **${playlist.name}**\n**${songCount}** Songs. Total length: **${durationString}**`);
-        playlist.songs = playlist.songs.sort((a, b) => a.playlistIndex - b.playlistIndex);
+        playlist.songs = playlist.songs.sort((a, b) => {
+            if (a.name < b.name) { return -1 };
+            if (a.name > b.name) { return 1 };
+            return 0;
+        });
         if (playlist.songs.length === 0) {
             embed.addField('Songs', 'No songs in this playlist.');
-            this._sendEmbedMessage(msg, embed);
+            msg.edit(embed);
             return;
         }
         if (playlist.songs.length > this.songsPerSite) {
             this._initSongReactionMessage(msg, playlist, embed, authorID);
         } else {
             let songField = '';
-            for (const song of playlist.songs) {
-                songField += `${song.playlistIndex}. ${song.name}\n▬▬ https://youtu.be/${song.id}\n`;
+            for (let i = 0; i < playlist.songs.length; i++) {
+                songField += `${i + 1}. ${playlist.songs[i].name}\n▬▬ https://youtu.be/${playlist.songs[i].songId}\n`;
             }
             if (songField) {
                 embed.addField('Songs', songField);
             }
-            this._sendEmbedMessage(msg, embed);
+            msg.edit(embed);
         }
     }
 
-    private async _initSongReactionMessage(msg: Message, playlist: Playlists, preparedEmbed: MessageEmbed, authorID: string) {
+    private async _initSongReactionMessage(msg: Message, playlist: Playlist, preparedEmbed: MessageEmbed, authorID: string) {
         let pages: MessageEmbed[] = [];
         this._reactionMsgOptions.page = 1;
         this._reactionMsgOptions.max = Math.ceil(playlist.songs.length / this.songsPerSite);
@@ -166,7 +170,7 @@ export default class playlistCommand implements BotCommand {
             songField = '';
             let soungCount = i === this._reactionMsgOptions.max && playlist.songs.length % this.songsPerSite !== 0 ? playlist.songs.length % this.songsPerSite : this.songsPerSite;
             for (let a = 0; a < soungCount; a++) {
-                songField += `${playlist.songs[(i - 1) * this.songsPerSite + a].playlistIndex}. ${playlist.songs[(i - 1) * this.songsPerSite + a].name}\n▬▬ https://youtu.be/${playlist.songs[(i - 1) * this.songsPerSite + a].id}\n`;
+                songField += `${(i - 1) * this.songsPerSite + a + 1}. ${playlist.songs[(i - 1) * this.songsPerSite + a].name}\n▬▬ https://youtu.be/${playlist.songs[(i - 1) * this.songsPerSite + a].songId}\n`;
             }
             pages[i].addField('Songs', songField);
         }
@@ -233,7 +237,7 @@ export default class playlistCommand implements BotCommand {
     // rename playlist
     // =============================================================================
 
-    private async _renamePlaylist(msg: Message, playlist: Playlists, authorID: string) {
+    private async _renamePlaylist(msg: Message, playlist: Playlist, authorID: string) {
         let response: string;
         let responseMsg: Message;
         msg.edit(`:pencil2: Please enter a new name for the playlist **${playlist.name}**:`, { embed: null });
@@ -247,7 +251,7 @@ export default class playlistCommand implements BotCommand {
             response = null;
         });
         if (response) {
-            await this._botClient.getDBConnection().getPlaylistsRepository().update({ id: playlist.id }, { name: response });
+            await this._botClient.getDatabase().getPlaylistRepository().update({ id: playlist.id }, { name: response });
             responseMsg.delete();
             msg.edit(`:white_check_mark: Renamed playlist ${playlist.name} to **${response}**.`)
         } else {
@@ -285,14 +289,4 @@ export default class playlistCommand implements BotCommand {
             this._logger.logText(text);
         }
     }
-
-    private _sendEmbedMessage(msg: Message, embed: MessageEmbed) {
-        if (msg.channel.id === config.wallEChannelID) {
-            msg.channel.send(embed);
-        } else {
-            msg.delete();
-            this._logger.logEmbed(embed);
-        }
-    }
-
 }

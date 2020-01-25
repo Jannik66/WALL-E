@@ -2,7 +2,7 @@ import { Message, Client } from 'discord.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
-import { BotDatabase } from '../DBConnection';
+import { BotDatabase } from '../database';
 
 export default class leaveCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -25,7 +25,7 @@ export default class leaveCommand implements BotCommand {
 
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
-        this._db = this._botClient.getDBConnection();
+        this._db = this._botClient.getDatabase();
         this._logger = this._botClient.getLogger();
     }
 

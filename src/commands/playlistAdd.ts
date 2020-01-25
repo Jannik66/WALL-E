@@ -5,8 +5,8 @@ import * as ytdl from 'ytdl-core';
 import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
-import { PlaylistSongs } from '../entities/playlistSongs';
-import { Playlists } from '../entities/playlists';
+import { PlaylistSong } from '../entities/playlistSong';
+import { Playlist } from '../entities/playlist';
 
 export default class playlistAddCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -29,7 +29,7 @@ export default class playlistAddCommand implements BotCommand {
 
     public async execute(msg: Message, args: string[], prefix: string) {
         const playlistIdentifier = args[0];
-        let playlist: Playlists;
+        let playlist: Playlist;
 
         if (!args[1]) {
             this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, please provide a valid youtube link.`);
@@ -49,13 +49,13 @@ export default class playlistAddCommand implements BotCommand {
             return;
         }
         if (playlistIdentifier.match(/^[0-9]*$/)) {
-            playlist = await this._botClient.getDBConnection().getPlaylistsRepository().findOne({ where: { id: playlistIdentifier }, relations: ['songs'] });
+            playlist = await this._botClient.getDatabase().getPlaylistRepository().findOne({ where: { id: playlistIdentifier }, relations: ['songs'] });
             if (!playlist) {
                 this._sendMessage(msg, `:x: ${msg.author.toString()}, playlist with ID ${playlistIdentifier} not found.`);
                 return;
             }
         } else {
-            playlist = await this._botClient.getDBConnection().getPlaylistsRepository().findOne({ where: { name: playlistIdentifier }, relations: ['songs'] });
+            playlist = await this._botClient.getDatabase().getPlaylistRepository().findOne({ where: { name: playlistIdentifier }, relations: ['songs'] });
             if (!playlist) {
                 this._sendMessage(msg, `:x: ${msg.author.toString()}, playlist with name ${playlistIdentifier} not found.`);
                 return;
@@ -76,18 +76,17 @@ export default class playlistAddCommand implements BotCommand {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, the song ${info.title} already exists in ${playlist.name}`);
                 return;
             }
-            const song = new PlaylistSongs();
+            const song = new PlaylistSong();
             song.id = videoID;
             song.name = info.title;
             song.length = parseInt(info.length_seconds);
-            song.playlistIndex = playlist.songs ? playlist.songs.length + 1 : 1;
             if (playlist.songs) {
                 playlist.songs.push(song);
             } else {
                 playlist.songs = [song];
             }
-            await this._botClient.getDBConnection().getConnection().manager.save(song);
-            await this._botClient.getDBConnection().getConnection().manager.save(playlist);
+            await this._botClient.getDatabase().getConnection().manager.save(song);
+            await this._botClient.getDatabase().getConnection().manager.save(playlist);
 
             this._sendMessage(msg, `:white_check_mark: Successfully added **${info.title}** to **${playlist.name}**`);
         });

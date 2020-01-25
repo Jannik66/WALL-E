@@ -6,9 +6,9 @@ import schedule, { Job } from 'node-schedule';
 import progress from 'progress-string';
 
 import config from '../config';
-import { BotClient, Song } from '../customInterfaces';
-import { Songs } from '../entities/songs';
+import { BotClient, QueueSong } from '../customInterfaces';
 import { MusicQueue } from '../audio/musicQueue';
+import { UserSong } from '../entities/userSong';
 
 export class StatusMessages {
 
@@ -24,7 +24,7 @@ export class StatusMessages {
 
     private _djsLeaderboardMessage: Message;
 
-    private _songsRepository: Repository<Songs>;
+    private _userSongRepository: Repository<UserSong>;
 
     private _playingNowString: string;
 
@@ -54,7 +54,7 @@ export class StatusMessages {
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._musicQueue = this._botClient.getMusicQueue();
-        this._songsRepository = this._botClient.getDBConnection().getSongsRepository();
+        this._userSongRepository = this._botClient.getDatabase().getUserSongRepository();
     }
 
     public async afterInit() {
@@ -69,7 +69,7 @@ export class StatusMessages {
     }
 
     private _listenToQueue() {
-        this._musicQueue.on('songAdded', (queue: Array<Song>) => {
+        this._musicQueue.on('songAdded', (queue: Array<QueueSong>) => {
             if (this._messageUpdateJob) {
                 this._messageUpdateJob.cancel();
             }
@@ -78,12 +78,12 @@ export class StatusMessages {
             }
             this._updateNowPlayingSong(queue);
         });
-        this._musicQueue.on('proceededToNextSong', (queue: Array<Song>) => {
+        this._musicQueue.on('proceededToNextSong', (queue: Array<QueueSong>) => {
             this._messageUpdateJob.cancel();
             this._songEndDate = moment().add(queue[0].length, 'seconds');
             this._updateNowPlayingSong(queue);
         });
-        this._musicQueue.on('queueShuffled', (queue: Array<Song>) => {
+        this._musicQueue.on('queueShuffled', (queue: Array<QueueSong>) => {
             this._messageUpdateJob.cancel();
             this._updateNowPlayingSong(queue);
         });
@@ -93,17 +93,17 @@ export class StatusMessages {
             }
             this._removeSongPlaying();
         });
-        this._musicQueue.on('upcomingQueueCleared', (queue: Array<Song>) => {
+        this._musicQueue.on('upcomingQueueCleared', (queue: Array<QueueSong>) => {
             this._messageUpdateJob.cancel();
             this._updateNowPlayingSong(queue);
         });
-        this._musicQueue.on('updatedLoop', (queue: Array<Song>) => {
+        this._musicQueue.on('updatedLoop', (queue: Array<QueueSong>) => {
             this._messageUpdateJob.cancel();
             this._updateNowPlayingSong(queue);
         });
     }
 
-    public _updateNowPlayingSong(queue: Array<Song>) {
+    public _updateNowPlayingSong(queue: Array<QueueSong>) {
         this._playingNowString = '';
 
         this._playingNowString += `<:disc:622750303862915082> Now playing <:disc:622750303862915082>\n\n`;
@@ -113,7 +113,7 @@ export class StatusMessages {
         this._playingNowString += `:dvd: **${queue[0].name}**\n`;
         this._playingNowString += `https://youtu.be/${queue[0].id}\n\n`;
 
-        this._songDuration = parseInt(queue[0].length);
+        this._songDuration = queue[0].length;
 
         this._comingUpString = this._generateQueueString(queue);
 
@@ -152,21 +152,21 @@ export class StatusMessages {
         return formattedDuration;
     }
 
-    private _generateQueueString(queue: Array<Song>) {
+    private _generateQueueString(queue: Array<QueueSong>) {
         let comingQueue = [...queue];
         comingQueue.shift();
-        let duration = moment.duration(comingQueue.map((value) => parseInt(value.length)).reduce((a, b) => a + b, 0), 'seconds');
+        let duration = moment.duration(comingQueue.map((value) => value.length).reduce((a, b) => a + b, 0), 'seconds');
         let durationString = this._formatDuration(duration);
         let comingUpString = comingQueue.length > 0 ? `\n\n${this._musicQueue.loop.entireQueue ? ':repeat: ' : ''}**Coming up** | Total Duration: **${durationString}**\n` : '';
 
         if (comingQueue.length > 20) {
             for (let i = 0; i < 20; i++) {
-                comingUpString += `\n▬ ${comingQueue[i].name} (**${this._formatDuration(moment.duration(parseInt(comingQueue[i].length), 'seconds'))}**)`;
+                comingUpString += `\n▬ ${comingQueue[i].name} (**${this._formatDuration(moment.duration(comingQueue[i].length, 'seconds'))}**)`;
             }
             comingUpString += `\n\n+ ${comingQueue.length - 20} more...`;
         } else {
             for (let song of comingQueue) {
-                comingUpString += `\n▬ ${song.name} (**${this._formatDuration(moment.duration(parseInt(song.length), 'seconds'))}**)`;
+                comingUpString += `\n▬ ${song.name} (**${this._formatDuration(moment.duration(song.length, 'seconds'))}**)`;
             }
         }
 
@@ -188,13 +188,14 @@ export class StatusMessages {
     }
 
     public async updateSongLeaderboard() {
-        let topSongs: { id: string, name: string, totalPlayed: number }[] = await this._songsRepository
-            .createQueryBuilder('songs')
-            .groupBy('songs.id')
-            .select('songs.id', 'id')
-            .addSelect('songs.name', 'name')
-            .addSelect('SUM(songs.timesPlayed)', 'totalPlayed')
-            .orderBy('SUM(songs.timesPlayed)', 'DESC')
+        let topSongs: { id: string, name: string, totalPlayed: number }[] = await this._userSongRepository
+            .createQueryBuilder('userSong')
+            .leftJoin('userSong.song', 'song')
+            .groupBy('userSong.song')
+            .select('song.id', 'id')
+            .addSelect('song.name', 'name')
+            .addSelect('SUM(userSong.timesPlayed)', 'totalPlayed')
+            .orderBy('SUM(userSong.timesPlayed)', 'DESC')
             .limit(10)
             .getRawMany();
         let songLeaderboard = `:dvd:**Most played songs**:dvd:\n`;
@@ -211,27 +212,32 @@ export class StatusMessages {
     }
 
     public async updateDJLeaderboard() {
-        let topDjs: { userID: string, totalPlayed: number }[] = await this._songsRepository
-            .createQueryBuilder('songs')
-            .groupBy('songs.userID')
-            .select('songs.userID', 'userID')
-            .addSelect('SUM(songs.timesPlayed)', 'totalPlayed')
-            .orderBy('SUM(songs.timesPlayed)', 'DESC')
+        let topDjs: { userID: string, totalPlayed: number }[] = await this._userSongRepository
+            .createQueryBuilder('userSong')
+            .leftJoin('userSong.user', 'user')
+            .groupBy('user.id')
+            .select('user.id', 'userID')
+            .addSelect('SUM(userSong.timesPlayed)', 'totalPlayed')
+            .orderBy('SUM(userSong.timesPlayed)', 'DESC')
             .limit(5)
             .getRawMany();
         let djLeaderboard = `:tada:**The best DJ's**:tada:\n`;
         for (let topDj in topDjs) {
-            let topSong: { name: string, timesPlayed: number } = await this._songsRepository
-                .createQueryBuilder('songs')
-                .select('songs.name', 'name')
-                .addSelect('songs.timesPlayed', 'timesPlayed')
-                .orderBy('songs.timesPlayed', 'DESC')
-                .where(`songs.userID = ${topDjs[topDj].userID}`)
+            let topSong: { name: string, id: string, timesPlayed: number } = await this._userSongRepository
+                .createQueryBuilder('userSong')
+                .leftJoin('userSong.song', 'song')
+                .leftJoin('userSong.user', 'user')
+                .select('song.name', 'name')
+                .addSelect('song.id', 'id')
+                .addSelect('userSong.timesPlayed', 'timesPlayed')
+                .orderBy('userSong.timesPlayed', 'DESC')
+                .where(`user.id = ${topDjs[topDj].userID}`)
                 .getRawOne();
             let username = this._client.users.get(topDjs[parseInt(topDj)].userID).username;
             djLeaderboard += `\n${this._numbers[parseInt(topDj)]} **${username}**`;
             djLeaderboard += `\n:arrows_counterclockwise: ${topDjs[parseInt(topDj)].totalPlayed}`;
             djLeaderboard += `\n**__Most Played:__**\n${topSong.timesPlayed} :arrows_counterclockwise: _${topSong.name}_  `;
+            djLeaderboard += `\n:link: https://youtu.be/${topSong.id}`
             djLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
 
         }

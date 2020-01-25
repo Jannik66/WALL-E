@@ -1,7 +1,7 @@
 import { Message, Client } from 'discord.js';
 import * as ytdl from 'ytdl-core';
 
-import { BotCommand, BotClient, Song } from '../customInterfaces';
+import { BotCommand, BotClient, QueueSong } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../messages/logger';
 
@@ -62,7 +62,7 @@ export default class playNowCommand implements BotCommand {
                         msg.delete();
                         return;
                     }
-                    const song: Song = { name: info.title, requester: msg.author.id, id: info.video_id, length: info.length_seconds };
+                    const song: QueueSong = { name: info.title, requester: msg.author.id, id: info.video_id, length: parseInt(info.length_seconds) };
                     this._audioPlayer.addVideoNow(msg.member.voice.channel, song);
                     this._logger.logSong(msg, song);
                     msg.delete();

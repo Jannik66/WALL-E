@@ -1,7 +1,7 @@
 import { Client, Collection, Message } from 'discord.js';
 
 import { Logger } from './messages/logger';
-import { BotDatabase } from './DBConnection';
+import { BotDatabase } from './database';
 import { AudioPlayer } from './audio/audioPlayer';
 import { StatusMessages } from './messages/statusMessages';
 import { MusicQueue } from './audio/musicQueue';
@@ -11,7 +11,7 @@ import { MusicQueue } from './audio/musicQueue';
  */
 export interface BotClient {
     getClient(): Client,
-    getDBConnection(): BotDatabase,
+    getDatabase(): BotDatabase,
     getAllCommands(): Collection<string, BotCommand>,
     getAudioPlayer(): AudioPlayer,
     getLogger(): Logger,
@@ -62,9 +62,9 @@ export interface BotConfig {
 /**
  * Song for song queue
  */
-export interface Song {
+export interface QueueSong {
     name: string,
     requester: string,
     id: string,
-    length: string
+    length: number
 }

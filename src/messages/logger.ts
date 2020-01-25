@@ -1,10 +1,12 @@
 import { Client, TextChannel, Message, MessageEmbed, User } from 'discord.js';
-import { Repository } from 'typeorm';
+import { Connection } from 'typeorm';
 
 import config from '../config';
-import { BotClient, Song } from '../customInterfaces';
-import { Songs } from '../entities/songs';
+import { BotClient, QueueSong } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
+import { Song } from '../entities/song';
+import { DBUser } from '../entities/user';
+import { UserSong } from '../entities/userSong';
 
 export class Logger {
 
@@ -12,13 +14,13 @@ export class Logger {
 
     private _logChannel: TextChannel;
 
-    private _songRepsitory: Repository<Songs>;
+    private _connection: Connection;
 
     private _statusMessages: StatusMessages;
 
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
-        this._songRepsitory = this._botClient.getDBConnection().getSongsRepository();
+        this._connection = this._botClient.getDatabase().getConnection();
         this._statusMessages = this._botClient.getStatusMessages();
     }
 
@@ -30,7 +32,7 @@ export class Logger {
     }
 
     // log song request
-    public logSong(msg: Message, song: Song) {
+    public logSong(msg: Message, song: QueueSong) {
         const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x007BFF');
 
         embed.addField(song.name, `https://youtu.be/${song.id}`);
@@ -144,13 +146,25 @@ export class Logger {
     }
 
     // save Song in database
-    public async saveSong(newSong: Song) {
-        let song = await this._songRepsitory.findOne({ where: { id: newSong.id, userID: newSong.requester } });
-        if (song) {
-            await this._songRepsitory.update({ id: newSong.id, userID: newSong.requester }, { timesPlayed: song.timesPlayed + 1 });
-        } else {
-            await this._songRepsitory.insert({ id: newSong.id, userID: newSong.requester, name: newSong.name, timesPlayed: 1 });
-        }
+    public async saveSong(newSong: QueueSong) {
+        const user = new DBUser();
+        user.id = newSong.requester;
+        const song = new Song();
+        song.id = newSong.id;
+        song.name = newSong.name;
+        song.length = newSong.length;
+
+        const oldUserSong = await this._connection.getRepository(UserSong).findOne({ where: { user: { id: newSong.requester }, song: { id: newSong.id } } });
+        const userSong = new UserSong();
+        userSong.user = user;
+        userSong.song = song;
+        userSong.timesPlayed = oldUserSong ? oldUserSong.timesPlayed + 1 : 1;
+        userSong.userSongId = user.id + song.id;
+
+        await this._connection.manager.save(user);
+        await this._connection.manager.save(song);
+        await this._connection.manager.save(userSong);
+
         this._statusMessages.updateSongLeaderboard();
         this._statusMessages.updateDJLeaderboard();
     }

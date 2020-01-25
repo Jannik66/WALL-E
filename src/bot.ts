@@ -3,7 +3,7 @@ import fs from 'fs';
 
 import config from './config';
 import { BotCommand, BotClient } from './customInterfaces';
-import { BotDatabase } from './DBConnection';
+import { BotDatabase } from './database';
 
 import readyListener from './listeners/readyListener';
 import messageListener from './listeners/messageListener';
@@ -22,7 +22,7 @@ export class WALLEBot implements BotClient {
     private _commands: Collection<string, BotCommand>;
 
     // Bot SQLite Database
-    private _BotDB: BotDatabase;
+    private _botDB: BotDatabase;
 
     // audioPlayer which manages the entire audio/song stuff
     private _audioPlayer: AudioPlayer;
@@ -47,8 +47,8 @@ export class WALLEBot implements BotClient {
         });
 
         // init database connection
-        await new BotDatabase().initConnection().then((BotDB) => {
-            this._BotDB = BotDB;
+        await new BotDatabase().initConnection().then((botDB) => {
+            this._botDB = botDB;
         });
 
         // create audioPlayer, logger and statusMessages
@@ -78,8 +78,8 @@ export class WALLEBot implements BotClient {
     public getClient() {
         return this._client;
     }
-    public getDBConnection() {
-        return this._BotDB;
+    public getDatabase() {
+        return this._botDB;
     }
     public getAudioPlayer() {
         return this._audioPlayer;

@@ -93,7 +93,6 @@ export default class helpCommand implements BotCommand {
             }
             this._sendEmbedMessage(msg, embed);
         }
-
     }
 
     private _sendMessage(msg: Message, text: string) {
@@ -113,5 +112,4 @@ export default class helpCommand implements BotCommand {
             this._logger.logEmbed(embed);
         }
     }
-
 }

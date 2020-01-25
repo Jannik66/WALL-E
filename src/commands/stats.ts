@@ -5,9 +5,8 @@ import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
 import config from '../config';
 import { Repository } from 'typeorm';
-import { Songs } from '../entities/songs';
-import { PlaylistSongs } from '../entities/playlistSongs';
-import { Playlists } from '../entities/playlists';
+import { Playlist } from '../entities/playlist';
+import { UserSong } from '../entities/userSong';
 
 export default class statsCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -26,19 +25,19 @@ export default class statsCommand implements BotCommand {
 
     private _client: Client;
 
-    private _songsRepository: Repository<Songs>;
-    private _playlistRepository: Repository<Playlists>;
+    private _userSongRepository: Repository<UserSong>;
+    private _playlistRepository: Repository<Playlist>;
 
     constructor(private _botClient: BotClient) {
         this._client = this._botClient.getClient();
         this._logger = this._botClient.getLogger();
-        this._songsRepository = this._botClient.getDBConnection().getSongsRepository();
-        this._playlistRepository = this._botClient.getDBConnection().getPlaylistsRepository();
+        this._userSongRepository = this._botClient.getDatabase().getUserSongRepository();
+        this._playlistRepository = this._botClient.getDatabase().getPlaylistRepository();
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
-        const songs = await this._songsRepository.find();
-        let songsCount = songs.map(song => song.timesPlayed).reduce((a, b) => a + b);
+        const userSongs = await this._userSongRepository.find();
+        let songsCount = userSongs.map(userSongs => userSongs.timesPlayed).reduce((a, b) => a + b);
         let playlists = await this._playlistRepository.find({ relations: ['songs'] });
         const playlistSongCount = playlists.map(playlist => playlist.songs).map(songs => songs.length).reduce((a, b) => a + b);
 

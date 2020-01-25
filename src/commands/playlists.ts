@@ -4,6 +4,7 @@ import moment from 'moment';
 import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
+import { Playlist } from '../entities/playlist';
 
 export default class playlistsCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -33,7 +34,7 @@ export default class playlistsCommand implements BotCommand {
         embed.setAuthor(`${this._client.user.username}`, `${this._client.user.avatarURL()}`);
         embed.setFooter('Pridefully serving the BDC-Server.');
 
-        const playlists = await this._botClient.getDBConnection().getPlaylistsRepository().find({ relations: ['songs'] });
+        const playlists = await this._botClient.getDatabase().getConnection().getRepository(Playlist).find({ relations: ['songs'] });
         for (const playlist of playlists) {
             const songCount = playlist.songs.length;
             const duration = moment.duration(playlist.songs.map((value) => value.length).reduce((a, b) => a + b, 0), 'seconds');

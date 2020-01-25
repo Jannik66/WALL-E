@@ -31,13 +31,13 @@ export default class playlistCreateCommand implements BotCommand {
             return;
         }
 
-        const playlist = await this._botClient.getDBConnection().getPlaylistsRepository().findOne({ where: { name: playlistName } });
+        const playlist = await this._botClient.getDatabase().getPlaylistRepository().findOne({ where: { name: playlistName } });
 
         if (playlist) {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, the playlist **${playlistName}** does already exist.`);
             return;
         }
-        await this._botClient.getDBConnection().getPlaylistsRepository().insert({ name: playlistName });
+        await this._botClient.getDatabase().getPlaylistRepository().insert({ name: playlistName, inRandom: true });
         this._sendMessage(msg, `:white_check_mark: Playlist **${playlistName}** successfully created.`);
     }
 

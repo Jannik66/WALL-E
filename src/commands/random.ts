@@ -5,7 +5,7 @@ import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../messages/logger';
-import { Playlists } from '../entities/playlists';
+import { Playlist } from '../entities/playlist';
 
 export default class randomCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -33,7 +33,7 @@ export default class randomCommand implements BotCommand {
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
-        let playlists: Playlists[];
+        let playlists: Playlist[];
         if (!args[0]) {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, please provide a quantity of songs.`);
             return;
@@ -42,7 +42,7 @@ export default class randomCommand implements BotCommand {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, please enter a valid number.`);
             return;
         } else {
-            playlists = await this._botClient.getDBConnection().getPlaylistsRepository().find({ relations: ['songs'] });
+            playlists = await this._botClient.getDatabase().getPlaylistRepository().find({ relations: ['songs'] });
         }
         const totalSongs = playlists.map((playlist) => playlist.songs.length).reduce((a, b) => a + b);
         const allSongs = playlists.map((playlist) => playlist.songs).reduce((a, b) => a.concat(b));
@@ -69,7 +69,7 @@ export default class randomCommand implements BotCommand {
         songs = songs.slice(0, numberOfSongs);
         embed.setTitle(`Enqueued ${numberOfSongs} random Songs.`);
         for (const song of songs) {
-            this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length.toString() });
+            this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length });
         };
         this._logger.logEmbed(embed);
         msg.delete();
@@ -83,5 +83,4 @@ export default class randomCommand implements BotCommand {
             this._logger.logText(text);
         }
     }
-
 }

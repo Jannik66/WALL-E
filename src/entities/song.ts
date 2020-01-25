@@ -1,12 +1,10 @@
 import { Entity, PrimaryColumn, Column } from 'typeorm';
 
-@Entity('Songs')
-export class Songs {
+@Entity()
+export class Song {
     @PrimaryColumn('varchar') id: string;
-
-    @PrimaryColumn('varchar') userID: string;
 
     @Column('varchar') name: string;
 
-    @Column('int') timesPlayed: number;
+    @Column('int') length: number;
 }

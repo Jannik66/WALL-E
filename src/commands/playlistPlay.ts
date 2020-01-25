@@ -5,7 +5,7 @@ import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../messages/logger';
-import { Playlists } from '../entities/playlists';
+import { Playlist } from '../entities/playlist';
 
 export default class playlistPlayCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -34,19 +34,19 @@ export default class playlistPlayCommand implements BotCommand {
 
     public async execute(msg: Message, args: string[], prefix: string) {
         let playlistIdentifier = args[0];
-        let playlist: Playlists;
+        let playlist: Playlist;
         if (!args[1]) {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, please provide a quantity of songs. Use \`all\` to play the entire playlist.`);
             return;
         }
         if (playlistIdentifier.match(/^[0-9]*$/)) {
-            playlist = await this._botClient.getDBConnection().getPlaylistsRepository().findOne({ where: { id: playlistIdentifier }, relations: ['songs'] });
+            playlist = await this._botClient.getDatabase().getPlaylistRepository().findOne({ where: { id: playlistIdentifier }, relations: ['songs'] });
             if (!playlist) {
                 this._sendMessage(msg, `:x: ${msg.author.toString()}, playlist with ID ${playlistIdentifier} not found.`);
                 return;
             }
         } else {
-            playlist = await this._botClient.getDBConnection().getPlaylistsRepository().findOne({ where: { name: playlistIdentifier }, relations: ['songs'] });
+            playlist = await this._botClient.getDatabase().getPlaylistRepository().findOne({ where: { name: playlistIdentifier }, relations: ['songs'] });
             if (!playlist) {
                 this._sendMessage(msg, `:x: ${msg.author.toString()}, playlist with name ${playlistIdentifier} not found.`);
                 return;
@@ -74,7 +74,7 @@ export default class playlistPlayCommand implements BotCommand {
         if (args[1].toLowerCase() === 'all') {
             embed.setTitle(`Enqueued ${playlist.songs.length} Songs from playlist ${playlist.name}.`);
             for (const song of songs) {
-                this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length.toString() });
+                this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length });
             };
         } else {
             if (!args[1].match(/^[0-9]*$/)) {
@@ -87,7 +87,7 @@ export default class playlistPlayCommand implements BotCommand {
             const count = parseInt(args[1]);
             embed.setTitle(`Enqueued ${count} Songs from playlist ${playlist.name}.`);
             for (let i = 0; i < count; i++) {
-                this._audioPlayer.addVideo(msg.member.voice.channel, { name: songs[i].name, requester: msg.author.id, id: songs[i].id, length: songs[i].length.toString() });
+                this._audioPlayer.addVideo(msg.member.voice.channel, { name: songs[i].name, requester: msg.author.id, id: songs[i].id, length: songs[i].length });
             }
         }
         this._logger.logEmbed(embed);
