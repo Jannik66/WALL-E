@@ -74,7 +74,7 @@ export default class playlistPlayCommand implements BotCommand {
         if (args[1].toLowerCase() === 'all') {
             embed.setTitle(`Enqueued ${playlist.songs.length} Songs from playlist ${playlist.name}.`);
             for (const song of songs) {
-                this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length });
+                this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.songId, length: song.length });
             };
         } else {
             if (!args[1].match(/^[0-9]*$/)) {
@@ -87,7 +87,7 @@ export default class playlistPlayCommand implements BotCommand {
             const count = parseInt(args[1]);
             embed.setTitle(`Enqueued ${count} Songs from playlist ${playlist.name}.`);
             for (let i = 0; i < count; i++) {
-                this._audioPlayer.addVideo(msg.member.voice.channel, { name: songs[i].name, requester: msg.author.id, id: songs[i].id, length: songs[i].length });
+                this._audioPlayer.addVideo(msg.member.voice.channel, { name: songs[i].name, requester: msg.author.id, id: songs[i].songId, length: songs[i].length });
             }
         }
         this._logger.logEmbed(embed);
