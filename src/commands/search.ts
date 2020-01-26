@@ -28,9 +28,9 @@ export default class searchCommand implements BotCommand {
 
     private _fuseOptions = {
         shouldSort: true,
-        threshold: 0.4,
+        threshold: 0.3,
         location: 0,
-        distance: 100,
+        distance: 200,
         maxPatternLength: 32,
         minMatchCharLength: 1,
         keys: ['name']
