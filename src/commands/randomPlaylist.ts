@@ -5,19 +5,19 @@ import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../messages/logger';
-import { Song } from '../entities/song';
+import { Playlist } from '../entities/playlist';
 
-export default class randomCommand implements BotCommand {
+export default class randomPlaylistCommand implements BotCommand {
     public information: BotCommand['information'] = {
-        id: 19,
-        name: 'random',
-        category: 'Music',
-        description: 'Plays a given amount of random songs, picked from the songs database.',
+        id: 15,
+        name: 'randomplaylist',
+        category: 'Playlist',
+        description: 'Plays a given amount of random songs, picked from any playlist.',
         argsRequired: true,
         admin: false,
-        aliases: ['r'],
-        usage: 'random {number of songs}',
-        examples: ['random 10']
+        aliases: ['rp'],
+        usage: 'randomplaylist {number of songs}',
+        examples: ['randomplaylist 10']
     }
 
     private _client: Client;
@@ -33,7 +33,7 @@ export default class randomCommand implements BotCommand {
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
-        let songs: Song[];
+        let playlists: Playlist[];
         if (!args[0]) {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, please provide a quantity of songs.`);
             return;
@@ -42,13 +42,14 @@ export default class randomCommand implements BotCommand {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, please enter a valid number.`);
             return;
         } else {
-            songs = await this._botClient.getDatabase().getConnection().getRepository(Song).find();
+            playlists = await this._botClient.getDatabase().getPlaylistRepository().find({ where: { inRandom: true }, relations: ['songs'] });
         }
-        if (songs.length === 0) {
-            this._sendMessage(msg, `:x: ${msg.author.toString()}, There are no songs in the database...`);
+        if (playlists.length === 0) {
+            this._sendMessage(msg, `:x: ${msg.author.toString()}, There are no playlists to select songs from. Maybe all are excluded from the random command?`);
             return;
         }
-        const totalSongs = songs.length;
+        const totalSongs = playlists.map((playlist) => playlist.songs.length).reduce((a, b) => a + b);
+        const allSongs = playlists.map((playlist) => playlist.songs).reduce((a, b) => a.concat(b));
         const numberOfSongs = parseInt(args[0]);
         if (numberOfSongs > totalSongs) {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, there are only ${totalSongs} songs to play.`);
@@ -68,11 +69,11 @@ export default class randomCommand implements BotCommand {
             return;
         }
 
-        songs = shuffle(songs);
+        let songs = shuffle(allSongs);
         songs = songs.slice(0, numberOfSongs);
         embed.setTitle(`Enqueued ${numberOfSongs} random Songs.`);
         for (const song of songs) {
-            this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.id, length: song.length });
+            this._audioPlayer.addVideo(msg.member.voice.channel, { name: song.name, requester: msg.author.id, id: song.songId, length: song.length });
         };
         this._logger.logEmbed(embed);
         msg.delete();
