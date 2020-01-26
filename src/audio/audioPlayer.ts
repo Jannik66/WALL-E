@@ -155,15 +155,15 @@ export class AudioPlayer {
         }
     }
 
-    private async _play(Url: string) {
+    private async _play(url: string) {
         if (!this._musicQueue.loop.enabled) {
             this._logger.saveSong(this._musicQueue.getQueue()[0]);
         }
         let audioStream = fs.createWriteStream('audioStream');
-        miniget(Url).pipe(audioStream);
+        miniget(url, { maxRedirects: 10 }).pipe(audioStream);
 
         // loop and check if miniget started writing to file
-        // if it has started, wait 500 ms more and than proceed to play audio
+        // if it has started, wait 100 ms more and than proceed to play audio
         await new Promise((done: any) => {
             let interval = setInterval(async () => {
                 if (audioStream.bytesWritten > 1) {
