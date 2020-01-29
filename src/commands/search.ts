@@ -1,5 +1,5 @@
 import { Message, Client, MessageEmbed } from 'discord.js';
-import Fuse from 'fuse.js';
+import Fuse, { FuseResultWithMatches } from 'fuse.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
@@ -28,6 +28,7 @@ export default class searchCommand implements BotCommand {
 
     private _fuseOptions = {
         shouldSort: true,
+        includeMatches: true,
         threshold: 0.3,
         location: 0,
         distance: 200,
@@ -61,10 +62,25 @@ export default class searchCommand implements BotCommand {
         embed.setTitle(`Result for \`${searchString}\``);
         let songList = '';
         for (let i = 0; i < result.length; i++) {
-            if ((songList + `${i + 1}. ${result[i].name}\n▬▬ https://youtu.be/${result[i].id}\n`).length > 1024) {
+            const song = (result[i] as FuseResultWithMatches<Song>);
+            let formattedName = '';
+            for (let a = 0; a < song.item.name.length; a++) {
+                if (song.matches[0].indices.find((arr: number[]) => arr[0] === a)) {
+                    if (song.matches[0].indices.find((arr: number[]) => arr[0] === arr[1] && arr[1] === a)) {
+                        formattedName += `**${song.item.name[a]}**`;
+                    } else {
+                        formattedName += `**${song.item.name[a]}`;
+                    }
+                } else if (song.matches[0].indices.find((arr: number[]) => arr[1] === a)) {
+                    formattedName += `${song.item.name[a]}**`;
+                } else {
+                    formattedName += `${song.item.name[a]}`;
+                }
+            }
+            if ((songList + `${i + 1}. ${formattedName}\n▬▬ https://youtu.be/${song.item.id}\n`).length > 1024) {
                 break;
             }
-            songList += `${i + 1}. ${result[i].name}\n▬▬ https://youtu.be/${result[i].id}\n`
+            songList += `${i + 1}. ${formattedName}\n▬▬ https://youtu.be/${song.item.id}\n`
         }
         embed.addField('Songs', songList);
         this._sendEmbedMessage(msg, embed);
