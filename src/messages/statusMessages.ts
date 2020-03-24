@@ -60,12 +60,12 @@ export class StatusMessages {
     public async afterInit() {
         this._listenToQueue();
 
-        this._dashboardChannel = this._client.channels.get(config.dashboardChannelID) as TextChannel;
+        this._dashboardChannel = this._client.channels.cache.get(config.dashboardChannelID) as TextChannel;
 
         await this._dashboardChannel.messages.fetch();
-        this._nowPlayingMessage = this._dashboardChannel.messages.get(config.nowPlayingMessageID);
-        this._songsLeaderboardMessage = this._dashboardChannel.messages.get(config.songLeaderboardMessageID);
-        this._djsLeaderboardMessage = this._dashboardChannel.messages.get(config.djLeaderboardMessageID);
+        this._nowPlayingMessage = this._dashboardChannel.messages.cache.get(config.nowPlayingMessageID);
+        this._songsLeaderboardMessage = this._dashboardChannel.messages.cache.get(config.songLeaderboardMessageID);
+        this._djsLeaderboardMessage = this._dashboardChannel.messages.cache.get(config.djLeaderboardMessageID);
     }
 
     private _listenToQueue() {
@@ -233,7 +233,7 @@ export class StatusMessages {
                 .orderBy('userSong.timesPlayed', 'DESC')
                 .where(`user.id = ${topDjs[topDj].userID}`)
                 .getRawOne();
-            let username = this._client.users.get(topDjs[parseInt(topDj)].userID).username;
+            let username = this._client.users.cache.get(topDjs[parseInt(topDj)].userID).username;
             djLeaderboard += `\n${this._numbers[parseInt(topDj)]} **${username}**`;
             djLeaderboard += `\n:arrows_counterclockwise: ${topDjs[parseInt(topDj)].totalPlayed}`;
             djLeaderboard += `\n**__Most Played:__**\n${topSong.timesPlayed} :arrows_counterclockwise: _${topSong.name}_  `;

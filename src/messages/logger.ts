@@ -179,7 +179,7 @@ export class Logger {
     }
 
     public afterInit() {
-        this._logChannel = this._client.channels.get(config.logChannelID) as TextChannel;
+        this._logChannel = this._client.channels.cache.get(config.logChannelID) as TextChannel;
     }
 
 }

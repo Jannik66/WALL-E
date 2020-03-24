@@ -59,7 +59,7 @@ export default class statsCommand implements BotCommand {
         statEmbed.addField(`<:nodejs:669263936998342716>Node.js Version`, `${process.version}`, true);
         statEmbed.addField(`:minidisc: Used memory`, `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} mb`, true);
 
-        statEmbed.addBlankField();
+        statEmbed.addField('\u200B', '\u200B');
         statEmbed.addField(`:dividers: Songs in database`, `${songCount}`, true);
         statEmbed.addField(`:notepad_spiral: Total Playlists`, `${playlists.length}`, true);
         statEmbed.addField(`:dvd: Total Songs in Playlists`, `${playlistSongCount}`, true);

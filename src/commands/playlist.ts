@@ -68,7 +68,7 @@ export default class playlistCommand implements BotCommand {
 
         embed.addField(`Gets noticed in random command`, `${playlist.inRandom ? 'Hell yeah' : 'Um noo...'}`);
 
-        embed.addBlankField();
+        embed.addField('\u200B', '\u200B');
         embed.addField('Menu', `📀: List songs\n✏️: Rename playlist\n🎲: ${playlist.inRandom ? 'Exlude from random command' : 'Include from random command'}\n❌: Delete message`);
 
         const m = await msg.channel.send(embed);
@@ -225,7 +225,7 @@ export default class playlistCommand implements BotCommand {
     }
 
     private async _removeReaction(m: Message, authorID: string, emoji: string) {
-        await m.reactions.find(r => r.emoji.name == emoji).users.remove(authorID);
+        await m.reactions.cache.find(r => r.emoji.name == emoji).users.remove(authorID);
     }
 
     // =============================================================================

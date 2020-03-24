@@ -83,8 +83,8 @@ export class AudioPlayer {
             msg.guild.member(this._client.user).voice.channel.leave();
             this._logger.logLeave(msg.author);
         } else {
-            if (this._client.guilds.get(config.BDCGuildID).member(this._client.user).voice.channel) {
-                this._client.guilds.get(config.BDCGuildID).member(this._client.user).voice.channel.leave();
+            if (this._client.guilds.cache.get(config.BDCGuildID).member(this._client.user).voice.channel) {
+                this._client.guilds.cache.get(config.BDCGuildID).member(this._client.user).voice.channel.leave();
                 this._logger.logLeave(this._client.user);
             }
         }
