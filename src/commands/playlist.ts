@@ -1,4 +1,4 @@
-import { Message, Client, MessageEmbed, MessageReaction, User, CollectorFilter } from 'discord.js';
+import { Message, Client, MessageEmbed, MessageReaction, User, CollectorFilter, TextChannel } from 'discord.js';
 import moment from 'moment';
 
 import config from '../config';
@@ -89,6 +89,7 @@ export default class playlistCommand implements BotCommand {
         m.awaitReactions(filter, { max: 1, time: this._reactionMsgOptions.limit, errors: ['time'] })
             .then(async (collected) => {
                 const reaction = collected.first();
+                if (!reaction) return;
                 if (reaction.emoji.name === '📀') {
                     // remove all reactions
                     await m.reactions.removeAll();
@@ -148,6 +149,7 @@ export default class playlistCommand implements BotCommand {
                 embed.addField('Songs', songField);
             }
             msg.edit(embed);
+            this._initDeleteSongReactionMessage(msg, playlist, embed, authorID);
         }
     }
 
@@ -176,18 +178,30 @@ export default class playlistCommand implements BotCommand {
         await m.react('⬅');
         await m.react('❌');
         await m.react('➡');
+        await m.react('🗑️');
 
         const filter = (reaction: MessageReaction, user: User) => {
-            return ['⬅', '❌', '➡'].includes(reaction.emoji.name) && user.id == authorID;
+            return ['⬅', '❌', '➡', '🗑️'].includes(reaction.emoji.name) && user.id == authorID;
         };
 
-        this._awaitSongsReactions(authorID, m, filter, pages);
+        this._awaitSongsReactions(authorID, m, filter, playlist, pages);
     }
 
-    private async _awaitSongsReactions(authorID: string, m: Message, filter: CollectorFilter, pages: MessageEmbed[]) {
+    private async _initDeleteSongReactionMessage(msg: Message, playlist: Playlist, preparedEmbed: MessageEmbed, authorID: string) {
+        await msg.react('🗑️');
+
+        const filter = (reaction: MessageReaction, user: User) => {
+            return ['🗑️'].includes(reaction.emoji.name) && user.id == authorID;
+        };
+
+        this._awaitSongsReactions(authorID, msg, filter, playlist);
+    }
+
+    private async _awaitSongsReactions(authorID: string, m: Message, filter: CollectorFilter, playlist: Playlist, pages?: MessageEmbed[]) {
         m.awaitReactions(filter, { max: 1, time: this._reactionMsgOptions.limit, errors: ['time'] })
             .then(async (collected) => {
                 const reaction = collected.first();
+                if (!reaction) return;
                 if (reaction.emoji.name === '⬅') {
                     // remove the back reaction if possible
                     await this._removeReaction(m, authorID, '⬅');
@@ -200,7 +214,7 @@ export default class playlistCommand implements BotCommand {
                     }
 
                     // restart the listener 
-                    this._awaitSongsReactions(authorID, m, filter, pages);
+                    this._awaitSongsReactions(authorID, m, filter, playlist, pages);
                 } else if (reaction.emoji.name === '➡') {
                     // remove the back reaction if possible
                     await this._removeReaction(m, authorID, '➡');
@@ -212,16 +226,54 @@ export default class playlistCommand implements BotCommand {
                     }
 
                     // restart the listener
-                    this._awaitSongsReactions(authorID, m, filter, pages);
+                    this._awaitSongsReactions(authorID, m, filter, playlist, pages);
                 } else if (reaction.emoji.name === '❌') {
                     // trash the message instantly, returning so the listener fully stops
                     return await m.delete();
+                } else if (reaction.emoji.name === '🗑️') {
+                    if (m.reactions.cache.find(r => r.emoji.name == '🗑️').me) {
+                        await m.reactions.cache.find(r => r.emoji.name == '🗑️').remove();
+                        const deleteMsg = await m.channel.send('🔴DELETE MODE🔴\nPlease enter the number of the song to be deleted:');
+                        this._awaitSongNumber(m, authorID, playlist, deleteMsg);
+                    }
+                    this._awaitSongsReactions(authorID, m, filter, playlist, pages);
                 } else {
-                    this._awaitSongsReactions(authorID, m, filter, pages);
+                    this._awaitSongsReactions(authorID, m, filter, playlist, pages);
                 }
             }).catch(() => {
                 m.reactions.removeAll();
             });
+    }
+
+    private async _awaitSongNumber(msg: Message, authorID: string, playlist: Playlist, deleteMsg: Message) {
+        let response: string;
+        let responseMsg: Message;
+        const awaitFilter = (m: Message) => m.author.id === authorID;
+        await msg.channel.awaitMessages(awaitFilter, {
+            max: 1, time: 60000, errors: ['time']
+        }).then(collectedMessages => {
+            response = collectedMessages.first().content;
+            responseMsg = collectedMessages.first();
+        }).catch(err => {
+            response = null;
+        });
+        if (response) {
+            if (!response.match(/^[0-9]*$/)) {
+                await msg.channel.send(`:x: Please provide a number. Cancelled.`)
+            } else {
+                this._deleteSongByNumber(parseInt(response, 10), playlist, msg.channel as TextChannel);
+            }
+        } else {
+            await msg.channel.send(`:x: Cancelled.`);
+        }
+        msg.delete();
+        deleteMsg.delete();
+        responseMsg.delete();
+    }
+
+    private async _deleteSongByNumber(n: number, playlist: Playlist, textChannel: TextChannel) {
+        await this._botClient.getDatabase().getConnection().manager.remove(playlist.songs[n - 1]);
+        textChannel.send(`:white_check_mark: Removed **${playlist.songs[n - 1].name}** from **${playlist.name}**`);
     }
 
     private async _removeReaction(m: Message, authorID: string, emoji: string) {
