@@ -63,7 +63,11 @@ export default class playCommand implements BotCommand {
                         return;
                     }
                     if (!info.title) {
-                        this._logger.logError(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
+                        this._logger.logError(msg, `:no_entry_sign: Youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
+                        return;
+                    }
+                    if (parseInt(info.length_seconds) === 0) {
+                        this._logger.logError(msg, `:no_entry_sign: I can't play streams.`);
                         return;
                     }
                     const song: QueueSong = { name: info.title, requester: msg.author.id, id: info.video_id, length: parseInt(info.length_seconds) };

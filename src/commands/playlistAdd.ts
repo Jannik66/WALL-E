@@ -80,6 +80,10 @@ export default class playlistAddCommand implements BotCommand {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
                 return;
             }
+            if (parseInt(info.length_seconds) === 0) {
+                this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, streams can't be added to playlists.`);
+                return;
+            }
             const song = new PlaylistSong();
             song.songId = videoID;
             song.name = info.title;

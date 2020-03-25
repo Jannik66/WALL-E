@@ -66,6 +66,10 @@ export default class playNowCommand implements BotCommand {
                         this._logger.logError(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
                         return;
                     }
+                    if (parseInt(info.length_seconds) === 0) {
+                        this._logger.logError(msg, `:no_entry_sign: I can't play streams.`);
+                        return;
+                    }
                     const song: QueueSong = { name: info.title, requester: msg.author.id, id: info.video_id, length: parseInt(info.length_seconds) };
                     this._audioPlayer.addVideoNow(msg.member.voice.channel, song);
                     this._logger.logSong(msg, song);

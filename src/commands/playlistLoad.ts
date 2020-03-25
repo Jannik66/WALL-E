@@ -77,6 +77,10 @@ export default class playlistLoadCommand implements BotCommand {
                     this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${ytSong.id}\` is not accessible. Maybe private?`);
                     return;
                 }
+                if (parseInt(info.length_seconds) === 0) {
+                    this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${ytSong.id}\` is a stream.`);
+                    return;
+                }
                 const song = new PlaylistSong();
                 song.songId = ytSong.id;
                 song.name = info.title;
