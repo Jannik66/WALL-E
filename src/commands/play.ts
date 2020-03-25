@@ -62,6 +62,10 @@ export default class playCommand implements BotCommand {
                         msg.delete();
                         return;
                     }
+                    if (!info.title) {
+                        this._logger.logError(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
+                        return;
+                    }
                     const song: QueueSong = { name: info.title, requester: msg.author.id, id: info.video_id, length: parseInt(info.length_seconds) };
                     this._audioPlayer.addVideo(msg.member.voice.channel, song);
                     this._logger.logSong(msg, song);

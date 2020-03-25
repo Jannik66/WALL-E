@@ -76,6 +76,10 @@ export default class playlistAddCommand implements BotCommand {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, the song ${info.title} already exists in ${playlist.name}`);
                 return;
             }
+            if (!info.title) {
+                this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
+                return;
+            }
             const song = new PlaylistSong();
             song.songId = videoID;
             song.name = info.title;
