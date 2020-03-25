@@ -7,17 +7,17 @@ import { AudioPlayer } from '../audio/audioPlayer';
 import { Logger } from '../messages/logger';
 import { Playlist } from '../entities/playlist';
 
-export default class randomPlaylistCommand implements BotCommand {
+export default class playlistRandomCommand implements BotCommand {
     public information: BotCommand['information'] = {
         id: 15,
-        name: 'randomplaylist',
+        name: 'playlistrandom',
         category: 'Playlist',
         description: 'Plays a given amount of random songs, picked from any playlist.',
         argsRequired: true,
         admin: false,
-        aliases: ['rp'],
-        usage: 'randomplaylist {number of songs}',
-        examples: ['randomplaylist 10']
+        aliases: ['pr', 'rp'],
+        usage: 'playlistrandom {number of songs}',
+        examples: ['playlistrandom 10']
     }
 
     private _client: Client;
