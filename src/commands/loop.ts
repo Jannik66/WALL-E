@@ -13,7 +13,7 @@ export default class loopCommand implements BotCommand {
         description: 'Loop the current song or the entire queue (`loop all`). (Call command again to disable loop.)',
         argsRequired: false,
         admin: false,
-        aliases: ['l'],
+        aliases: [],
         usage: 'loop',
         examples: ['loop', 'loop all']
     }

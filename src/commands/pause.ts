@@ -13,7 +13,7 @@ export default class pauseCommand implements BotCommand {
         description: 'Pauses or resumes the music.',
         argsRequired: false,
         admin: false,
-        aliases: ['pause'],
+        aliases: ['resume'],
         usage: 'pause',
         examples: ['pause']
     }

@@ -55,6 +55,7 @@ export interface BotConfig {
     botToken: string,
     prefix: string,
     botID: string,
+    maxPlaylistSongs: number,
     rootPath: string,
     DBLogging: boolean
 }

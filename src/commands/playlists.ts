@@ -14,7 +14,7 @@ export default class playlistsCommand implements BotCommand {
         description: 'Lists all created playlists.',
         argsRequired: false,
         admin: false,
-        aliases: [],
+        aliases: ['pls'],
         usage: 'playlists [playlistname | id]',
         examples: ['playlists']
     }

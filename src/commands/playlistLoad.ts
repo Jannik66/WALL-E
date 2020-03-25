@@ -1,4 +1,4 @@
-import { Message, Client } from 'discord.js';
+import { Message } from 'discord.js';
 import * as ytdl from 'ytdl-core';
 var ytpl = require('ytpl');
 // @ts-ignore
@@ -15,7 +15,7 @@ export default class playlistLoadCommand implements BotCommand {
         id: 20,
         name: 'playlistload',
         category: 'Playlist',
-        description: 'Save an entire playlist. (Limit: 1000 songs :P)',
+        description: `Save an entire playlist. (Limit: ${config.maxPlaylistSongs} songs :P)`,
         argsRequired: true,
         admin: false,
         aliases: ['pload'],
@@ -41,7 +41,7 @@ export default class playlistLoadCommand implements BotCommand {
             this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, please provide a valid youtube playlist link/id.`);
             return;
         }
-        const ytPlaylist = await ytpl(args[1], { limit: 1500 });
+        const ytPlaylist = await ytpl(args[1], { limit: config.maxPlaylistSongs });
 
         if (playlistName.match(/^[0-9]*$/)) {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, the playlist can't be a number`);
