@@ -181,7 +181,7 @@ export class AudioPlayer {
         });
 
         // if dispatcher ends, proceed to next song
-        this._dispatcher.on('end', () => {
+        this._dispatcher.on('finish', () => {
             this._musicQueue.proceedToNextSong(this._skipped);
             if (this._skipped) {
                 this._skipped = false;
