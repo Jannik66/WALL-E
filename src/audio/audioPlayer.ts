@@ -141,9 +141,11 @@ export class AudioPlayer {
      */
     private async _loadAudioURL() {
         const info = await ytdl.getInfo(`https://youtu.be/${this._musicQueue.getQueue()[0].id}`);
-        const audioUrl = info.formats.find((format: any) => {
-            return format.audioBitrate === 128;
-        }).url;
+        const audioUrl = info.formats.filter((format: any) => {
+            return format.audioBitrate <= 128;
+        }).sort((a: any, b: any) => {
+            return b.audioBitrate - a.audioBitrate;
+        })[0].url;
 
         if (audioUrl.startsWith('https://manifest')) {
             miniget(audioUrl, (err: any, req: any, body: string) => {

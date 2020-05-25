@@ -1,5 +1,5 @@
 import { Message, Client, MessageEmbed } from 'discord.js';
-import Fuse, { FuseResultWithMatches } from 'fuse.js';
+import Fuse from 'fuse.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
@@ -62,7 +62,7 @@ export default class searchCommand implements BotCommand {
         embed.setTitle(`Result for \`${searchString}\``);
         let songList = '';
         for (let i = 0; i < result.length; i++) {
-            const song = (result[i] as FuseResultWithMatches<Song>);
+            const song = result[i];
             let formattedName = '';
             for (let a = 0; a < song.item.name.length; a++) {
                 if (song.matches[0].indices.find((arr: number[]) => arr[0] === a)) {
