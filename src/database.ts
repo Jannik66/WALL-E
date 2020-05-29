@@ -6,12 +6,13 @@ import { DBUser } from './entities/user';
 import { Playlist } from './entities/playlist';
 import { PlaylistSong } from './entities/playlistSong';
 import { UserSong } from './entities/userSong';
+import { VoiceStat } from './entities/voiceStat';
 
 // database options
 const options: ConnectionOptions = {
     type: 'sqlite',
     database: `${config.rootPath}/database/WALLE.db`,
-    entities: [Song, DBUser, UserSong, Playlist, PlaylistSong],
+    entities: [Song, DBUser, UserSong, Playlist, PlaylistSong, VoiceStat],
     logging: config.DBLogging
 }
 
@@ -21,6 +22,7 @@ export class BotDatabase {
 
     private _userSongRepository: Repository<UserSong>;
     private _playlistRepository: Repository<Playlist>;
+    private _voiceStatRepository: Repository<VoiceStat>;
 
     public async initConnection() {
         // init connection to database
@@ -32,6 +34,7 @@ export class BotDatabase {
          // save repository to property
          this._userSongRepository = this._connection.getRepository(UserSong);
          this._playlistRepository = this._connection.getRepository(Playlist);
+         this._voiceStatRepository = this._connection.getRepository(VoiceStat);
 
         return this;
     }
@@ -46,6 +49,9 @@ export class BotDatabase {
     }
     public getPlaylistRepository() {
         return this._playlistRepository;
+    }
+    public getVoiceStatRepository() {
+        return this._voiceStatRepository;
     }
 
 }

@@ -13,6 +13,7 @@ import { MusicQueue } from './audio/musicQueue';
 
 import { StatusMessages } from './messages/statusMessages';
 import { Logger } from './messages/logger';
+import { StatHandler } from './stats/statHandler';
 
 export class WALLEBot implements BotClient {
     // Discord Client of the Bot
@@ -39,6 +40,9 @@ export class WALLEBot implements BotClient {
     private _messageListener: messageListener;
     private _readyListener: readyListener;
 
+    // stats
+    private _statHandler: StatHandler;
+
     // initial start method
     public async start() {
         // create new client
@@ -61,6 +65,8 @@ export class WALLEBot implements BotClient {
         // create listnerers
         this._messageListener = new messageListener(this);
         this._readyListener = new readyListener(this);
+
+        this._statHandler = new StatHandler(this);
 
         // load all commands
         this.loadCommands();
@@ -122,5 +128,6 @@ export class WALLEBot implements BotClient {
     public afterInit() {
         this._logger.afterInit();
         this._statusMessages.afterInit();
+        this._statHandler.init();
     }
 }

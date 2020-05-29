@@ -57,7 +57,8 @@ export interface BotConfig {
     botID: string,
     maxPlaylistSongs: number,
     rootPath: string,
-    DBLogging: boolean
+    DBLogging: boolean,
+    excludedVoiceChannelIds: string[]
 }
 
 /**
