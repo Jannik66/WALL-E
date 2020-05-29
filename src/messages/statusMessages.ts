@@ -9,6 +9,7 @@ import config from '../config';
 import { BotClient, QueueSong } from '../customInterfaces';
 import { MusicQueue } from '../audio/musicQueue';
 import { UserSong } from '../entities/userSong';
+import { VoiceStat } from '../entities/voiceStat';
 
 export class StatusMessages {
 
@@ -17,6 +18,7 @@ export class StatusMessages {
     private _musicQueue: MusicQueue;
 
     private _dashboardChannel: TextChannel;
+    private _hallOfBDCChannel: TextChannel;
 
     private _nowPlayingMessage: Message;
 
@@ -24,7 +26,11 @@ export class StatusMessages {
 
     private _djsLeaderboardMessage: Message;
 
+    private _voiceStatMessage: Message;
+
     private _userSongRepository: Repository<UserSong>;
+
+    private _voiceStatRepository: Repository<VoiceStat>;
 
     private _playingNowString: string;
 
@@ -55,17 +61,23 @@ export class StatusMessages {
         this._client = this._botClient.getClient();
         this._musicQueue = this._botClient.getMusicQueue();
         this._userSongRepository = this._botClient.getDatabase().getUserSongRepository();
+        this._voiceStatRepository = this._botClient.getDatabase().getVoiceStatRepository();
     }
 
     public async afterInit() {
         this._listenToQueue();
 
         this._dashboardChannel = this._client.channels.cache.get(config.dashboardChannelID) as TextChannel;
+        this._hallOfBDCChannel = this._client.channels.cache.get(config.hallOfBDCChannelID) as TextChannel;
 
         await this._dashboardChannel.messages.fetch();
+        await this._hallOfBDCChannel.messages.fetch();
         this._nowPlayingMessage = this._dashboardChannel.messages.cache.get(config.nowPlayingMessageID);
         this._songsLeaderboardMessage = this._dashboardChannel.messages.cache.get(config.songLeaderboardMessageID);
         this._djsLeaderboardMessage = this._dashboardChannel.messages.cache.get(config.djLeaderboardMessageID);
+        this._voiceStatMessage = this._hallOfBDCChannel.messages.cache.get(config.voiceStatMessageID);
+
+        this._scheduleVoiceStatMsgUpdate();
     }
 
     private _listenToQueue() {
@@ -101,6 +113,33 @@ export class StatusMessages {
             this._messageUpdateJob.cancel();
             this._updateNowPlayingSong(queue);
         });
+    }
+
+    private _scheduleVoiceStatMsgUpdate() {
+        schedule.scheduleJob('0 * * * *', () => {
+            this._updateVoiceStatMsg();
+        })
+    }
+
+    private async _updateVoiceStatMsg() {
+        let messageString = '';
+        messageString += `:loud_sound: Voice Stats :loud_sound:\n_(Since 29.05.2020)_\n\n`;
+
+        const voiceMembers = await this._voiceStatRepository.createQueryBuilder('voiceStat')
+            .select('count(Id)', 'count')
+            .addSelect('voiceStat.userID', 'userID')
+            .groupBy('voiceStat.userID')
+            .orderBy('count', 'DESC')
+            .getRawMany();
+
+        for (const i in voiceMembers) {
+            const username = this._client.users.cache.get(voiceMembers[i].userID).username;
+            messageString += `\n${this._numbers[parseInt(i)]} **${username}**`;
+            messageString += `\n:stopwatch: ${this._formatVoiceMinutes(voiceMembers[parseInt(i)].count)}`;
+            messageString += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
+        }
+
+        this._voiceStatMessage.edit(messageString);
     }
 
     public _updateNowPlayingSong(queue: Array<QueueSong>) {
@@ -150,6 +189,17 @@ export class StatusMessages {
         formattedDuration += duration.seconds() > 9 ? duration.seconds() : `0${duration.seconds()}`;
 
         return formattedDuration;
+    }
+
+    // format mintutes to a better readable format
+    private _formatVoiceMinutes(minutes: number) {
+        let duration = moment.duration(minutes, 'minutes');
+        return (
+            (Math.floor(duration.asMonths()) > 0 ? `${Math.floor(duration.asMonths())}M ` : '') +
+            (Math.floor(duration.asMonths()) > 0 || duration.days() > 0 ? `${duration.days()}d ` : '') +
+            (duration.hours() > 0 || duration.days() > 0 || Math.floor(duration.asMonths()) > 0 ? `${duration.hours()}h ` : '') +
+            `${duration.minutes()}m`
+        );
     }
 
     private _generateQueueString(queue: Array<QueueSong>) {
