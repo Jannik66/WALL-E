@@ -194,8 +194,8 @@ export class StatusMessages {
             .groupBy('userSong.song')
             .select('song.id', 'id')
             .addSelect('song.name', 'name')
-            .addSelect('SUM(userSong.timesPlayed)', 'totalPlayed')
-            .orderBy('SUM(userSong.timesPlayed)', 'DESC')
+            .addSelect('count(*)', 'totalPlayed')
+            .orderBy('count(*)', 'DESC')
             .limit(10)
             .getRawMany();
         let songLeaderboard = `:dvd:**Most played songs**:dvd:\n`;
@@ -217,26 +217,27 @@ export class StatusMessages {
             .leftJoin('userSong.user', 'user')
             .groupBy('user.id')
             .select('user.id', 'userID')
-            .addSelect('SUM(userSong.timesPlayed)', 'totalPlayed')
-            .orderBy('SUM(userSong.timesPlayed)', 'DESC')
+            .addSelect('count(*)', 'totalPlayed')
+            .orderBy('count(*)', 'DESC')
             .limit(5)
             .getRawMany();
         let djLeaderboard = `:tada:**The best DJ's**:tada:\n`;
         for (let topDj in topDjs) {
-            let topSong: { name: string, id: string, timesPlayed: number } = await this._userSongRepository
+            let topSong: { name: string, id: string, totalPlayed: number } = await this._userSongRepository
                 .createQueryBuilder('userSong')
                 .leftJoin('userSong.song', 'song')
                 .leftJoin('userSong.user', 'user')
                 .select('song.name', 'name')
                 .addSelect('song.id', 'id')
-                .addSelect('userSong.timesPlayed', 'timesPlayed')
-                .orderBy('userSong.timesPlayed', 'DESC')
+                .addSelect('count(*)', 'totalPlayed')
+                .groupBy('song.id')
+                .orderBy('count(*)', 'DESC')
                 .where(`user.id = ${topDjs[topDj].userID}`)
                 .getRawOne();
             let username = this._client.users.cache.get(topDjs[parseInt(topDj)].userID).username;
             djLeaderboard += `\n${this._numbers[parseInt(topDj)]} **${username}**`;
             djLeaderboard += `\n:arrows_counterclockwise: ${topDjs[parseInt(topDj)].totalPlayed}`;
-            djLeaderboard += `\n**__Most Played:__**\n${topSong.timesPlayed} :arrows_counterclockwise: _${topSong.name}_  `;
+            djLeaderboard += `\n**__Most Played:__**\n${topSong.totalPlayed} :arrows_counterclockwise: _${topSong.name}_  `;
             djLeaderboard += `\n:link: https://youtu.be/${topSong.id}`
             djLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
 

@@ -158,8 +158,7 @@ export class Logger {
         const userSong = new UserSong();
         userSong.user = user;
         userSong.song = song;
-        userSong.timesPlayed = oldUserSong ? oldUserSong.timesPlayed + 1 : 1;
-        userSong.userSongId = user.id + song.id;
+        userSong.timestamp = new Date();
 
         await this._connection.manager.save(user);
         await this._connection.manager.save(song);

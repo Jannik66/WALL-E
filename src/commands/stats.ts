@@ -39,9 +39,9 @@ export default class statsCommand implements BotCommand {
     }
 
     public async execute(msg: Message, args: string[], prefix: string) {
-        const userSongs = await this._userSongRepository.find({ relations: ['song'] });
-        const songsPlayedCount = userSongs.map(userSongs => userSongs.timesPlayed).reduce((a, b) => a + b);
-        const songsPlayLength = userSongs.map(userSongs => userSongs.song.length).reduce((a, b) => a + b);
+        const userSongsWithCount = await this._userSongRepository.findAndCount({ relations: ['song'] });
+        const songsPlayedCount = userSongsWithCount[1];
+        const songsPlayLength = userSongsWithCount[0].map(userSongs => userSongs.song.length).reduce((a, b) => a + b);
         const playlists = await this._playlistRepository.find({ relations: ['songs'] });
         const playlistSongCount = playlists.map(playlist => playlist.songs).map(songs => songs.length).reduce((a, b) => a + b);
         const songs = await this._connection.getRepository(Song).find();
