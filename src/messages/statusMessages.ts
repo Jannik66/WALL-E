@@ -134,8 +134,8 @@ export class StatusMessages {
 
         for (const i in voiceMembers) {
             const username = this._client.users.cache.get(voiceMembers[i].userID).username;
-            messageString += `\n${this._numbers[parseInt(i)]} **${username}**`;
-            messageString += `\n:stopwatch: ${this._formatVoiceMinutes(voiceMembers[parseInt(i)].count)}`;
+            messageString += `\n${this._numbers[i]} **${username}**`;
+            messageString += `\n:stopwatch: ${this._formatVoiceMinutes(voiceMembers[i].count)}`;
             messageString += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
         }
 
@@ -238,7 +238,7 @@ export class StatusMessages {
     }
 
     public async updateSongLeaderboard() {
-        let topSongs: { id: string, name: string, totalPlayed: number }[] = await this._userSongRepository
+        let topSongsAllTime: { id: string, name: string, totalPlayed: number }[] = await this._userSongRepository
             .createQueryBuilder('userSong')
             .leftJoin('userSong.song', 'song')
             .groupBy('userSong.song')
@@ -246,16 +246,40 @@ export class StatusMessages {
             .addSelect('song.name', 'name')
             .addSelect('count(*)', 'totalPlayed')
             .orderBy('count(*)', 'DESC')
-            .limit(10)
+            .limit(3)
             .getRawMany();
-        let songLeaderboard = `:dvd:**Most played songs**:dvd:\n`;
-        for (let topSong in topSongs) {
-            songLeaderboard += `\n${this._numbers[parseInt(topSong)]} **${topSongs[parseInt(topSong)].name}**`;
-            songLeaderboard += `\n:arrows_counterclockwise: ${topSongs[parseInt(topSong)].totalPlayed}`;
-            songLeaderboard += `\n:link: https://youtu.be/${topSongs[parseInt(topSong)].id}`;
+
+        let songLeaderboard = `:trophy:**Most played songs of all time**:trophy:\n`;
+        for (let topSong in topSongsAllTime) {
+            songLeaderboard += `\n${this._numbers[topSong]} **${topSongsAllTime[topSong].name}**`;
+            songLeaderboard += `\n:arrows_counterclockwise: ${topSongsAllTime[topSong].totalPlayed}`;
+            songLeaderboard += `\n:link: https://youtu.be/${topSongsAllTime[topSong].id}`;
             songLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
         }
-        if (topSongs.length === 0) {
+        songLeaderboard += '\n\n';
+
+        const monthBeginDate = moment().utcOffset(0).startOf('month');
+        let topSongsThisMonth: { id: string, name: string, totalPlayed: number }[] = await this._userSongRepository
+            .createQueryBuilder('userSong')
+            .leftJoin('userSong.song', 'song')
+            .groupBy('userSong.song')
+            .select('song.id', 'id')
+            .addSelect('song.name', 'name')
+            .addSelect('count(*)', 'totalPlayed')
+            .where("userSong.timestamp > :beginOfMonth", { beginOfMonth: monthBeginDate.toDate() })
+            .orderBy('count(*)', 'DESC')
+            .limit(10)
+            .getRawMany();
+
+        songLeaderboard += `:dvd:**Most played songs of the month ${monthBeginDate.format('MMMM')}**:dvd:\n`;
+        for (let topSong in topSongsThisMonth) {
+            songLeaderboard += `\n${this._numbers[topSong]} **${topSongsThisMonth[topSong].name}**`;
+            songLeaderboard += `\n:arrows_counterclockwise: ${topSongsThisMonth[topSong].totalPlayed}`;
+            songLeaderboard += `\n:link: https://youtu.be/${topSongsThisMonth[topSong].id}`;
+            songLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
+        }
+
+        if (topSongsAllTime.length === 0) {
             songLeaderboard += 'No songs in the database...';
         }
         this._songsLeaderboardMessage.edit(songLeaderboard);
@@ -284,9 +308,9 @@ export class StatusMessages {
                 .orderBy('count(*)', 'DESC')
                 .where(`user.id = ${topDjs[topDj].userID}`)
                 .getRawOne();
-            let username = this._client.users.cache.get(topDjs[parseInt(topDj)].userID).username;
-            djLeaderboard += `\n${this._numbers[parseInt(topDj)]} **${username}**`;
-            djLeaderboard += `\n:arrows_counterclockwise: ${topDjs[parseInt(topDj)].totalPlayed}`;
+            let username = this._client.users.cache.get(topDjs[topDj].userID).username;
+            djLeaderboard += `\n${this._numbers[topDj]} **${username}**`;
+            djLeaderboard += `\n:arrows_counterclockwise: ${topDjs[topDj].totalPlayed}`;
             djLeaderboard += `\n**__Most Played:__**\n${topSong.totalPlayed} :arrows_counterclockwise: _${topSong.name}_  `;
             djLeaderboard += `\n:link: https://youtu.be/${topSong.id}`
             djLeaderboard += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
