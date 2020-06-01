@@ -22,7 +22,8 @@
     "sqlite3": "^4.2.0",
     "typeorm": "^0.2.24",
     "ytdl-core": "^2.1.2",
-    "ytpl": "^0.1.21"
+    "ytpl": "^0.1.21",
+    "ytsr": "^0.1.14"
   },
   "devDependencies": {
     "@types/node": "^14.0.1",
