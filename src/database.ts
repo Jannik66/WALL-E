@@ -11,7 +11,7 @@ import { VoiceStat } from './entities/voiceStat';
 // database options
 const options: ConnectionOptions = {
     type: 'sqlite',
-    database: `${config.rootPath}/database/WALLE.db`,
+    database: `./database/WALLE.db`,
     entities: [Song, DBUser, UserSong, Playlist, PlaylistSong, VoiceStat],
     logging: config.DBLogging
 }

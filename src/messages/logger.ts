@@ -1,5 +1,6 @@
 import { Client, TextChannel, Message, MessageEmbed, User } from 'discord.js';
 import { Connection } from 'typeorm';
+import moment from 'moment';
 
 import config from '../config';
 import { BotClient, QueueSong } from '../customInterfaces';
@@ -158,7 +159,7 @@ export class Logger {
         const userSong = new UserSong();
         userSong.user = user;
         userSong.song = song;
-        userSong.timestamp = new Date();
+        userSong.timestamp = moment().utcOffset(0).toDate();
 
         await this._connection.manager.save(user);
         await this._connection.manager.save(song);

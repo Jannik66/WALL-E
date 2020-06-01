@@ -125,17 +125,17 @@ export class StatusMessages {
         let messageString = '';
         messageString += `:loud_sound: Voice Stats :loud_sound:\n_(Since 29.05.2020)_\n\n`;
 
-        const voiceMembers = await this._voiceStatRepository.createQueryBuilder('voiceStat')
-            .select('count(Id)', 'count')
-            .addSelect('voiceStat.userID', 'userID')
+        const voiceMembers: { min: number, userId: string }[] = await this._voiceStatRepository.createQueryBuilder('voiceStat')
+            .select('count(Id)', 'min')
+            .addSelect('voiceStat.userID', 'userId')
             .groupBy('voiceStat.userID')
-            .orderBy('count', 'DESC')
+            .orderBy('min', 'DESC')
             .getRawMany();
 
         for (const i in voiceMembers) {
-            const username = this._client.users.cache.get(voiceMembers[i].userID).username;
+            const username = this._client.users.cache.get(voiceMembers[i].userId).username;
             messageString += `\n${this._numbers[i]} **${username}**`;
-            messageString += `\n:stopwatch: ${this._formatVoiceMinutes(voiceMembers[i].count)}`;
+            messageString += `\n:stopwatch: ${this._formatVoiceMinutes(voiceMembers[i].min)}`;
             messageString += `\n▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬`;
         }
 
@@ -266,7 +266,7 @@ export class StatusMessages {
             .select('song.id', 'id')
             .addSelect('song.name', 'name')
             .addSelect('count(*)', 'totalPlayed')
-            .where("userSong.timestamp > :beginOfMonth", { beginOfMonth: monthBeginDate.toDate() })
+            .where("userSong.timestamp > :beginOfMonth", { beginOfMonth: monthBeginDate.toISOString() })
             .orderBy('count(*)', 'DESC')
             .limit(10)
             .getRawMany();

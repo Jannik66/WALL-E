@@ -1,6 +1,7 @@
 import { Client, VoiceChannel } from 'discord.js';
 import { Repository } from 'typeorm';
 import ns from 'node-schedule';
+import moment from 'moment';
 
 import { VoiceStat } from '../entities/voiceStat';
 import config from '../config';
@@ -35,7 +36,7 @@ export class StatHandler {
                 if (voiceChannel.members.filter(m => !m.user.bot).size > 1) {
                     voiceChannel.members.each(m => {
                         if (m.user.bot) return;
-                        this._voiceStatRepository.insert({ channelID: voiceChannel.id, userID: m.id, timestamp: new Date() });
+                        this._voiceStatRepository.insert({ channelID: voiceChannel.id, userID: m.id, timestamp: moment().utcOffset(0).toDate() });
                     });
                 }
             }

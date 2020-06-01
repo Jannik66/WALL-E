@@ -44,15 +44,23 @@ export default class messageListener {
         if (command.information.argsRequired && !args.length) {
             let reply = `:no_entry_sign: No arguments were provided`
 
-            reply += `\nUsage: \`${this._prefix}${command.information.usage}\``
+            reply += `\n**Description**: ${command.information.description}`;
 
-            reply += `\nExample:`;
+            reply += `\n**Usage**: \`${this._prefix}${command.information.usage}\``
+
+            reply += `\n**Example**:`;
 
             for (let example of command.information.examples) {
                 reply += `\n\`${this._prefix}${example}\``;
             }
-            this._botClient.getLogger().logError(msg, reply);
-            msg.delete();
+
+            if (msg.channel.id === config.wallEChannelID) {
+                msg.channel.send(reply);
+            } else {
+                this._botClient.getLogger().logError(msg, reply);
+                msg.delete();
+            }
+
             return;
         }
 
