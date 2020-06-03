@@ -51,12 +51,7 @@ export default class playNowCommand implements BotCommand {
             // if regex conatins a videoID
             if (videoID) {
                 await msg.react('🔎');
-                ytdl.getBasicInfo(videoID, (err, info) => {
-                    if (err) {
-                        this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
-                        msg.delete();
-                        return;
-                    }
+                ytdl.getBasicInfo(videoID).then(info => {
                     if (parseInt(info.length_seconds) > 39600) {
                         this._logger.logError(msg, ':no_entry_sign: Sorry, but this fucking video is longer than 11 hours. Get some help.');
                         msg.delete();
@@ -74,6 +69,10 @@ export default class playNowCommand implements BotCommand {
                     this._audioPlayer.addVideoNow(msg.member.voice.channel, song);
                     this._logger.logSong(msg, song);
                     msg.delete();
+                }).catch(err => {
+                    this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
+                    msg.delete();
+                    return;
                 });
             } else {
                 this._logger.logError(msg, ':no_entry_sign: Please provide a valid youtube link.');

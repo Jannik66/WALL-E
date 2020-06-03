@@ -148,10 +148,9 @@ export class AudioPlayer {
         })[0].url;
 
         if (audioUrl.startsWith('https://manifest')) {
-            miniget(audioUrl, (err: any, req: any, body: string) => {
-                let url = body.substring(body.indexOf('<BaseURL>') + 9, body.indexOf('</BaseURL>'));
-                this._play(url);
-            });
+            const body = await miniget(audioUrl).text();
+            let url = body.substring(body.indexOf('<BaseURL>') + 9, body.indexOf('</BaseURL>'));
+            this._play(url);
         } else {
             this._play(audioUrl);
         }

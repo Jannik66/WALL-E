@@ -51,29 +51,28 @@ export default class playCommand implements BotCommand {
             // if regex conatins a videoID
             if (videoID) {
                 await msg.react('🔎');
-                ytdl.getBasicInfo(videoID, (err, info) => {
-                    if (err) {
-                        this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
-                        msg.delete();
-                        return;
-                    }
-                    if (parseInt(info.length_seconds) > 39600) {
+                ytdl.getBasicInfo(videoID).then(info => {
+                    if (parseInt(info.videoDetails.lengthSeconds) > 39600) {
                         this._logger.logError(msg, ':no_entry_sign: Sorry, but this fucking video is longer than 11 hours. Get some help.');
                         msg.delete();
                         return;
                     }
-                    if (!info.title) {
+                    if (!info.videoDetails.title) {
                         this._logger.logError(msg, `:no_entry_sign: Youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
                         return;
                     }
-                    if (parseInt(info.length_seconds) === 0) {
+                    if (parseInt(info.videoDetails.lengthSeconds) === 0) {
                         this._logger.logError(msg, `:no_entry_sign: I can't play streams.`);
                         return;
                     }
-                    const song: QueueSong = { name: info.title, requester: msg.author.id, id: info.video_id, length: parseInt(info.length_seconds) };
+                    const song: QueueSong = { name: info.videoDetails.title, requester: msg.author.id, id: info.videoDetails.videoId, length: parseInt(info.videoDetails.lengthSeconds) };
                     this._audioPlayer.addVideo(msg.member.voice.channel, song);
                     this._logger.logSong(msg, song);
                     msg.delete();
+                }).catch(err => {
+                    this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
+                    msg.delete();
+                    return;
                 });
             } else {
                 this._logger.logError(msg, ':no_entry_sign: Please provide a valid youtube link.');

@@ -63,12 +63,7 @@ export default class playlistLoadCommand implements BotCommand {
         this._initProgressBar(msg, ytPlaylist.items.length);
 
         for (const ytSong of ytPlaylist.items) {
-            await ytdl.getBasicInfo(ytSong.id, async (err, info) => {
-                this._processedSongs++;
-                if (err) {
-                    this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video \`${ytSong.title}\`, ID: \`${ytSong.id}\` not found. Might got deleted or blocked.`);
-                    return;
-                }
+            await ytdl.getBasicInfo(ytSong.id).then(info => {
                 if (parseInt(info.length_seconds) > 39600) {
                     this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, sorry, but the video "${info.title}" is longer than 11 hours. Get some help.`);
                     return;
@@ -86,6 +81,9 @@ export default class playlistLoadCommand implements BotCommand {
                 song.name = info.title;
                 song.length = parseInt(info.length_seconds);
                 songsToAdd.push(song);
+            }).catch(err => {
+                this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video \`${ytSong.title}\`, ID: \`${ytSong.id}\` not found. Might got deleted or blocked.`);
+                return;
             });
         }
 

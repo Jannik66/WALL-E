@@ -63,11 +63,7 @@ export default class playlistAddCommand implements BotCommand {
         }
 
         await msg.react('🔎');
-        ytdl.getBasicInfo(videoID, async (err, info) => {
-            if (err) {
-                this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video not found.`);
-                return;
-            }
+        ytdl.getBasicInfo(videoID).then(async info => {
             if (parseInt(info.length_seconds) > 39600) {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, sorry, but this fucking video is longer than 11 hours. Get some help.`);
                 return;
@@ -97,6 +93,9 @@ export default class playlistAddCommand implements BotCommand {
             await this._botClient.getDatabase().getConnection().manager.save(playlist);
 
             this._sendMessage(msg, `:white_check_mark: Successfully added **${info.title}** to **${playlist.name}**`);
+        }).catch(err => {
+            this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video not found.`);
+            return;
         });
     }
 

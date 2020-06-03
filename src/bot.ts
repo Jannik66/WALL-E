@@ -13,7 +13,7 @@ import { MusicQueue } from './audio/musicQueue';
 
 import { StatusMessages } from './messages/statusMessages';
 import { Logger } from './messages/logger';
-import { StatHandler } from './stats/statHandler';
+import { StatHandler } from './handlers/statHandler';
 
 export class WALLEBot implements BotClient {
     // Discord Client of the Bot
