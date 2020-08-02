@@ -39,7 +39,7 @@ export default class searchytCommand implements BotCommand {
 
         await msg.react('🔎');
         const result = await ytsr(searchString, { limit: 15 });
-        const videos = result.items.filter((i: any) => i.type === 'video' && !i.live);
+        const videos = result.items.filter((i: any) => i.type === 'video' && !i.live) as ytsr.Video[];
 
         let videosString = '';
         for (let i = 0; i < (videos.length < 5 ? videos.length : 5); i++) {

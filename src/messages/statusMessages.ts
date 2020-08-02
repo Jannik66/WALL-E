@@ -258,7 +258,7 @@ export class StatusMessages {
         }
         songLeaderboard += '\n\n';
 
-        const monthBeginDate = moment().utcOffset(0).startOf('month');
+        const monthBeginDate = moment().startOf('month').utcOffset(0);
         let topSongsThisMonth: { id: string, name: string, totalPlayed: number }[] = await this._userSongRepository
             .createQueryBuilder('userSong')
             .leftJoin('userSong.song', 'song')
