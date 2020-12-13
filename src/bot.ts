@@ -125,7 +125,9 @@ export class WALLEBot implements BotClient {
     }
 
     // methods which need a logged in client. Call after bot is ready (called by ready listener)
-    public afterInit() {
+    public async afterInit() {
+        await this._client.guilds.cache.get(config.BDCGuildID).members.fetch();
+
         this._logger.afterInit();
         this._statusMessages.afterInit();
         this._statHandler.init();

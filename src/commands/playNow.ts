@@ -52,20 +52,20 @@ export default class playNowCommand implements BotCommand {
             if (videoID) {
                 await msg.react('🔎');
                 ytdl.getBasicInfo(videoID).then(info => {
-                    if (parseInt(info.length_seconds) > 39600) {
+                    if (parseInt(info.videoDetails.lengthSeconds) > 39600) {
                         this._logger.logError(msg, ':no_entry_sign: Sorry, but this fucking video is longer than 11 hours. Get some help.');
                         msg.delete();
                         return;
                     }
-                    if (!info.title) {
+                    if (!info.videoDetails.title) {
                         this._logger.logError(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
                         return;
                     }
-                    if (parseInt(info.length_seconds) === 0) {
+                    if (parseInt(info.videoDetails.lengthSeconds) === 0) {
                         this._logger.logError(msg, `:no_entry_sign: I can't play streams.`);
                         return;
                     }
-                    const song: QueueSong = { name: info.title, requester: msg.author.id, id: info.video_id, length: parseInt(info.length_seconds) };
+                    const song: QueueSong = { name: info.videoDetails.title, requester: msg.author.id, id: info.videoDetails.videoId, length: parseInt(info.videoDetails.lengthSeconds) };
                     this._audioPlayer.addVideoNow(msg.member.voice.channel, song);
                     this._logger.logSong(msg, song);
                     msg.delete();

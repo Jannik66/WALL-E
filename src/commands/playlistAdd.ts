@@ -64,26 +64,26 @@ export default class playlistAddCommand implements BotCommand {
 
         await msg.react('🔎');
         ytdl.getBasicInfo(videoID).then(async info => {
-            if (parseInt(info.length_seconds) > 39600) {
+            if (parseInt(info.videoDetails.lengthSeconds) > 39600) {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, sorry, but this fucking video is longer than 11 hours. Get some help.`);
                 return;
             }
             if (playlist.songs && playlist.songs.find(song => song.songId === videoID)) {
-                this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, the song ${info.title} already exists in ${playlist.name}`);
+                this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, the song ${info.videoDetails.title} already exists in ${playlist.name}`);
                 return;
             }
-            if (!info.title) {
+            if (!info.videoDetails.title) {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${videoID}\` is not accessible. Maybe private?`);
                 return;
             }
-            if (parseInt(info.length_seconds) === 0) {
+            if (parseInt(info.videoDetails.lengthSeconds) === 0) {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, streams can't be added to playlists.`);
                 return;
             }
             const song = new PlaylistSong();
             song.songId = videoID;
-            song.name = info.title;
-            song.length = parseInt(info.length_seconds);
+            song.name = info.videoDetails.title;
+            song.length = parseInt(info.videoDetails.lengthSeconds);
             if (playlist.songs) {
                 playlist.songs.push(song);
             } else {
@@ -92,7 +92,7 @@ export default class playlistAddCommand implements BotCommand {
             await this._botClient.getDatabase().getConnection().manager.save(song);
             await this._botClient.getDatabase().getConnection().manager.save(playlist);
 
-            this._sendMessage(msg, `:white_check_mark: Successfully added **${info.title}** to **${playlist.name}**`);
+            this._sendMessage(msg, `:white_check_mark: Successfully added **${info.videoDetails.title}** to **${playlist.name}**`);
         }).catch(err => {
             this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video not found.`);
             return;

@@ -70,6 +70,7 @@ export default class playCommand implements BotCommand {
                     this._logger.logSong(msg, song);
                     msg.delete();
                 }).catch(err => {
+                    console.log(err);
                     this._logger.logError(msg, ':no_entry_sign: Youtube video not found.');
                     msg.delete();
                     return;

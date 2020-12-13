@@ -64,22 +64,22 @@ export default class playlistLoadCommand implements BotCommand {
 
         for (const ytSong of ytPlaylist.items) {
             await ytdl.getBasicInfo(ytSong.id).then(info => {
-                if (parseInt(info.length_seconds) > 39600) {
-                    this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, sorry, but the video "${info.title}" is longer than 11 hours. Get some help.`);
+                if (parseInt(info.videoDetails.lengthSeconds) > 39600) {
+                    this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, sorry, but the video "${info.videoDetails.title}" is longer than 11 hours. Get some help.`);
                     return;
                 }
-                if (!info.title || !info.length_seconds) {
+                if (!info.videoDetails.title || !info.videoDetails.lengthSeconds) {
                     this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${ytSong.id}\` is not accessible. Maybe private?`);
                     return;
                 }
-                if (parseInt(info.length_seconds) === 0) {
+                if (parseInt(info.videoDetails.lengthSeconds) === 0) {
                     this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video with ID \`${ytSong.id}\` is a stream.`);
                     return;
                 }
                 const song = new PlaylistSong();
                 song.songId = ytSong.id;
-                song.name = info.title;
-                song.length = parseInt(info.length_seconds);
+                song.name = info.videoDetails.title;
+                song.length = parseInt(info.videoDetails.lengthSeconds);
                 songsToAdd.push(song);
             }).catch(err => {
                 this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, youtube video \`${ytSong.title}\`, ID: \`${ytSong.id}\` not found. Might got deleted or blocked.`);
