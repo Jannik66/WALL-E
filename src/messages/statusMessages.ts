@@ -271,7 +271,7 @@ export class StatusMessages {
             .limit(10)
             .getRawMany();
 
-        songLeaderboard += `:dvd:**Most played songs of the month ${monthBeginDate.format('MMMM')}**:dvd:\n`;
+        songLeaderboard += `:dvd:**Most played songs of the month ${monthBeginDate.add(1, 'day').format('MMMM')}**:dvd:\n`;
         for (let topSong in topSongsThisMonth) {
             songLeaderboard += `\n${this._numbers[topSong]} **${topSongsThisMonth[topSong].name}**`;
             songLeaderboard += `\n:arrows_counterclockwise: ${topSongsThisMonth[topSong].totalPlayed}`;

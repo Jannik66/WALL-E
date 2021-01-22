@@ -43,7 +43,7 @@ export default class searchytCommand implements BotCommand {
 
         let videosString = '';
         for (let i = 0; i < (videos.length < 5 ? videos.length : 5); i++) {
-            const videoRegex = videos[i].link.match(/(youtu\.be\/|youtube\.com\/(watch\?(.*&)?v=|(embed|v)\/))([^\?&"'>]+)/);
+            const videoRegex = videos[i].url.match(/(youtu\.be\/|youtube\.com\/(watch\?(.*&)?v=|(embed|v)\/))([^\?&"'>]+)/);
             const videoID = videoRegex[5];
             videosString += `\n:musical_note: ${videos[i].title}`;
             videosString += `\n:hourglass_flowing_sand: ${videos[i].duration}`;
