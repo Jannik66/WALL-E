@@ -11,7 +11,7 @@
   "author": "Jannik66#0066",
   "license": "ISC",
   "dependencies": {
-    "@discordjs/opus": "^0.3.3",
+    "@discordjs/opus": "^0.4.0",
     "discord.js": "^12.5.1",
     "fuse.js": "^6.4.6",
     "miniget": "^4.1.0",
@@ -21,9 +21,9 @@
     "shuffle-array": "^1.0.1",
     "sqlite3": "^5.0.0",
     "typeorm": "^0.2.30",
-    "ytdl-core": "^4.4.4",
+    "ytdl-core": "^4.4.5",
     "ytpl": "^2.0.4",
-    "ytsr": "^3.2.2"
+    "ytsr": "^3.2.3"
   },
   "devDependencies": {
     "@types/node": "^14.14.22",
