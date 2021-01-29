@@ -117,6 +117,13 @@ export default class statsCommand implements BotCommand {
                 this._sendErrorMessage(msg, `Could not parse \`${args[1]}\` to a month.`);
                 return;
             }
+            if (args[2]) {
+                if (!args[2].match(/^[0-9]*$/) && args[2].length === 4) {
+                    this._sendErrorMessage(msg, `Could not parse \`${args[2]}\` to a year.`);
+                    return;
+                }
+                date.year(parseInt(args[2]));
+            }
 
             const monthBeginDate = moment(date).startOf('month').utcOffset(0);
             const monthEndDate = moment(date).endOf('month').utcOffset(0);
@@ -134,8 +141,7 @@ export default class statsCommand implements BotCommand {
                 .limit(5)
                 .getRawMany();
 
-
-            statEmbed.setTitle(`:part_alternation_mark: Music Stats of Month ${monthEndDate.format('MMMM')}`);
+            statEmbed.setTitle(`:part_alternation_mark: Music Stats of Month ${monthEndDate.format('MMMM YYYY')}`);
             month = monthEndDate.format('MMMM');
 
             if (topSongsMonth.length === 0) {
@@ -219,6 +225,13 @@ export default class statsCommand implements BotCommand {
                 this._sendErrorMessage(msg, `Could not parse \`${args[1]}\` to a month.`);
                 return;
             }
+            if (args[2]) {
+                if (!args[2].match(/^[0-9]*$/) && args[2].length === 4) {
+                    this._sendErrorMessage(msg, `Could not parse \`${args[2]}\` to a year.`);
+                    return;
+                }
+                date.year(parseInt(args[2]));
+            }
 
             const monthBeginDate = moment(date).startOf('month').utcOffset(0);
             const monthEndDate = moment(date).endOf('month').utcOffset(0);
@@ -230,7 +243,7 @@ export default class statsCommand implements BotCommand {
                     { beginOfMonth: monthBeginDate.toISOString(), endOfMonth: monthEndDate.toISOString() })
                 .getRawMany();
 
-            statEmbed.setTitle(`:part_alternation_mark: Voice Stats of Month ${monthEndDate.format('MMMM')}`);
+            statEmbed.setTitle(`:part_alternation_mark: Voice Stats of Month ${monthEndDate.format('MMMM YYYY')}`);
 
             if (voiceStats.length === 0) {
                 statEmbed.setDescription('No entries found for this month');
