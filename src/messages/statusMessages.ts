@@ -99,6 +99,10 @@ export class StatusMessages {
             this._messageUpdateJob.cancel();
             this._updateNowPlayingSong(queue);
         });
+        this._musicQueue.on('songRemoved', (queue: Array<QueueSong>) => {
+            this._messageUpdateJob.cancel();
+            this._updateNowPlayingSong(queue);
+        });
         this._musicQueue.on('queueCleared', () => {
             if (this._messageUpdateJob) {
                 this._messageUpdateJob.cancel();

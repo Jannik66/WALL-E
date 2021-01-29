@@ -144,7 +144,7 @@ export class AudioPlayer {
 
         // check if the video is playable and throw error if not
         if (info.player_response.playabilityStatus.status === 'UNPLAYABLE') {
-            this._logger.logError(this._musicQueue.getQueue()[0].requester, `:x: Welp, the song with id \`${this._musicQueue.getQueue()[0].id}\` couldn't be played and got skipped.\nPlease check if this video ist still available here: https://youtu.be/${this._musicQueue.getQueue()[0].id}.\nSorry :/`);
+            this._logger.logError(this._musicQueue.getQueue()[0].requester, `:x: Welp, the song with id \`${this._musicQueue.getQueue()[0].id}\` couldn't be played and got skipped.\nPlease check if this video is still available here: https://youtu.be/${this._musicQueue.getQueue()[0].id}.\nSorry :/`);
             this._musicQueue.proceedToNextSong(false);
             if (this._musicQueue.getQueue().length > 0) {
                 this._loadAudioURL();

@@ -68,6 +68,11 @@ export class MusicQueue extends EventEmitter {
         this.emit('upcomingQueueCleared', this._musicQueue);
     }
 
+    public removeSongAt(queueIndex: number) {
+        this._musicQueue.splice(queueIndex, 1);
+        this.emit('songRemoved', this._musicQueue);
+    }
+
     public getQueue() {
         return this._musicQueue;
     }
