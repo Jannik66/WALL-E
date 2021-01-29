@@ -101,8 +101,8 @@ export class Logger {
     }
 
     // log any error (provide error as string)
-    public logError(msg: Message, errorString: string) {
-        this._logChannel.send(`${msg.author.toString()}\n${errorString}`);
+    public logError(userId: string, errorString: string) {
+        this._logChannel.send(`<@${userId}>\n${errorString}`);
     }
 
     public logSuccess(msg: Message, content: string) {
@@ -120,7 +120,7 @@ export class Logger {
         this._logChannel.send(text);
     }
 
-    public async logRestart(msg: Message, ) {
+    public async logRestart(msg: Message) {
         const embed = this._createEmbed(msg.author.username, msg.author.avatarURL(), '0x28A745');
 
         embed.setTitle(':gear: Restarting...');

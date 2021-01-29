@@ -36,7 +36,7 @@ export default class messageListener {
         if (!command) return;
 
         if (command.information.admin && !(msg.author.id === config.botOwnerID)) {
-            this._botClient.getLogger().logError(msg, `:no_entry_sign: Only Jannik66 can execute this command.`);
+            this._botClient.getLogger().logError(msg.author.id, `:no_entry_sign: Only Jannik66 can execute this command.`);
             msg.delete();
             return;
         }
@@ -57,7 +57,7 @@ export default class messageListener {
             if (msg.channel.id === config.wallEChannelID) {
                 msg.channel.send(reply);
             } else {
-                this._botClient.getLogger().logError(msg, reply);
+                this._botClient.getLogger().logError(msg.author.id, reply);
                 msg.delete();
             }
 

@@ -70,7 +70,7 @@ export class AudioPlayer {
             this._dispatcher.end();
             this._logger.logSkip(msg);
         } else {
-            this._logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
+            this._logger.logError(msg.author.id, `:no_entry_sign: I'm not playing anything.`);
         }
     }
 
@@ -106,7 +106,7 @@ export class AudioPlayer {
                 this._statusMessage.pause();
             }
         } else {
-            this._logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
+            this._logger.logError(msg.author.id, `:no_entry_sign: I'm not playing anything.`);
         }
     }
 
@@ -120,7 +120,7 @@ export class AudioPlayer {
             this._musicQueue.changeLoop(entireQueue ? true : !this._musicQueue.loop.enabled, entireQueue);
             this._logger.logLoop(msg, this._musicQueue.loop.enabled, entireQueue);
         } else {
-            this._logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
+            this._logger.logError(msg.author.id, `:no_entry_sign: I'm not playing anything.`);
         }
     }
 
@@ -141,6 +141,18 @@ export class AudioPlayer {
      */
     private async _loadAudioURL() {
         const info = await ytdl.getInfo(`https://youtu.be/${this._musicQueue.getQueue()[0].id}`);
+
+        // check if the video is playable and throw error if not
+        if (info.player_response.playabilityStatus.status === 'UNPLAYABLE') {
+            this._logger.logError(this._musicQueue.getQueue()[0].requester, `:x: Welp, the song with id \`${this._musicQueue.getQueue()[0].id}\` couldn't be played and got skipped.\nPlease check if this video ist still available here: https://youtu.be/${this._musicQueue.getQueue()[0].id}.\nSorry :/`);
+            this._musicQueue.proceedToNextSong(false);
+            if (this._musicQueue.getQueue().length > 0) {
+                this._loadAudioURL();
+            }
+            return;
+        }
+
+        // get audioUrl with the best quality (Bitrate under 128)
         const audioUrl = info.formats.filter((format: any) => {
             return format.audioBitrate <= 128;
         }).sort((a: any, b: any) => {

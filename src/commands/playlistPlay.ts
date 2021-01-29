@@ -63,10 +63,10 @@ export default class playlistPlayCommand implements BotCommand {
         embed.setTimestamp(new Date());
 
         if (!msg.member.voice.channel) {
-            this._logger.logError(msg, ':no_entry_sign: Please join a voice channel.');
+            this._logger.logError(msg.author.id, ':no_entry_sign: Please join a voice channel.');
             return;
         } else if (msg.guild.member(this._client.user).voice.channel && msg.guild.member(this._client.user).voice.channel !== msg.member.voice.channel) {
-            this._logger.logError(msg, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
+            this._logger.logError(msg.author.id, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
             return;
         }
 

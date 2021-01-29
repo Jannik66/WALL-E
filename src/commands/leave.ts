@@ -32,7 +32,7 @@ export default class leaveCommand implements BotCommand {
     public async execute(msg: Message, args: string[], prefix: string) {
         // check if bot is in a voice channel
         if (!msg.guild.member(this._client.user).voice.channel) {
-            this._logger.logError(msg, ':no_entry_sign: I\'m not in a voice channel.');
+            this._logger.logError(msg.author.id, ':no_entry_sign: I\'m not in a voice channel.');
         } else {
             // leave voice channel and clear queue
             this._audioPlayer.leave(msg);

@@ -367,7 +367,7 @@ export default class statsCommand implements BotCommand {
             msg.channel.send(text);
         } else {
             msg.delete();
-            this._logger.logError(msg, text);
+            this._logger.logError(msg.author.id, text);
         }
     }
 }

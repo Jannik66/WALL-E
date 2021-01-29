@@ -36,10 +36,10 @@ export default class skipCommand implements BotCommand {
     public async execute(msg: Message, args: string[], prefix: string) {
         // check if bot is in a voice channel
         if (!msg.guild.member(this._client.user).voice.channel || this._musicQueue.getQueue().length === 0) {
-            this._logger.logError(msg, `:no_entry_sign: I'm not playing anything.`);
+            this._logger.logError(msg.author.id, `:no_entry_sign: I'm not playing anything.`);
             // check if bot and user are in the same voice channel
         } else if (msg.guild.member(this._client.user).voice.channel && msg.guild.member(this._client.user).voice.channel !== msg.member.voice.channel) {
-            this._logger.logError(msg, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
+            this._logger.logError(msg.author.id, `:no_entry_sign: You're not in the same voice channel as the bot.\n Use \`${prefix}leave\` to disconnect the bot.`);
         } else {
             this._audioPlayer.skip(msg);
         }
