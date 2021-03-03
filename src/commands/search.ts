@@ -3,7 +3,6 @@ import Fuse from 'fuse.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
-import config from '../config';
 import { Repository } from 'typeorm';
 import { Song } from '../entities/song';
 
@@ -87,7 +86,7 @@ export default class searchCommand implements BotCommand {
     }
 
     private _sendMessage(msg: Message, text: string) {
-        if (msg.channel.id === config.wallEChannelID) {
+        if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
             msg.channel.send(text);
         } else {
             msg.delete();
@@ -96,7 +95,7 @@ export default class searchCommand implements BotCommand {
     }
 
     private _sendEmbedMessage(msg: Message, embed: MessageEmbed) {
-        if (msg.channel.id === config.wallEChannelID) {
+        if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
             msg.channel.send(embed);
         } else {
             msg.delete();

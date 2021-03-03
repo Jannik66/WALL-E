@@ -2,7 +2,6 @@ import { Message, Collection, MessageEmbed, Client } from 'discord.js';
 
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
-import config from '../config';
 
 export default class helpCommand implements BotCommand {
     public information: BotCommand['information'] = {
@@ -96,7 +95,7 @@ export default class helpCommand implements BotCommand {
     }
 
     private _sendMessage(msg: Message, text: string) {
-        if (msg.channel.id === config.wallEChannelID) {
+        if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
             msg.channel.send(text);
         } else {
             msg.delete();
@@ -105,7 +104,7 @@ export default class helpCommand implements BotCommand {
     }
 
     private _sendEmbedMessage(msg: Message, embed: MessageEmbed) {
-        if (msg.channel.id === config.wallEChannelID) {
+        if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
             msg.channel.send(embed);
         } else {
             msg.delete();

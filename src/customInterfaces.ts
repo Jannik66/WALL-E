@@ -17,6 +17,7 @@ export interface BotClient {
     getLogger(): Logger,
     getStatusMessages(): StatusMessages,
     getMusicQueue(): MusicQueue,
+    getConfig(): BotConfig,
     start(): void,
     afterInit(): void
 }
@@ -58,8 +59,8 @@ export interface BotConfig {
     prefix: string,
     botID: string,
     maxPlaylistSongs: number,
-    rootPath: string,
     DBLogging: boolean,
+    DBPath: string,
     excludedVoiceChannelIds: string[]
 }
 

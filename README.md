@@ -6,13 +6,12 @@ Is a personalized Discord Music & Stat Bot for the BDC Discord Server.
 
 ## Music
 
-- Play (almost) every youtube video!
-- There are many useful commands like `loop`, `random`, `pause` and much more
+- Play (almost) every youtube video in your Discord channel.
 
 ## Database
 
 - WALL-E logs every song in a database
-- He also keeps track of you :O
+- He also keeps track of you
 - The search command allows you to search through this database
 
 ## Playlist
@@ -21,43 +20,43 @@ Is a personalized Discord Music & Stat Bot for the BDC Discord Server.
 - Add an entire playlist to the queue and enjoy your evening musically
 - You can also let WALL-E "copy" a Youtube playlist and save it to the database
 
-# Commands
+# Setting WALL-E up
+## Config file
+WALL-E needs a `config.json` file with the following content:
+```json
+{
+    "logChannelID": "LOG_CHANNEL_ID",
+    "dashboardChannelID": "DASHBOARD_CHANNEL_ID",
+    "wallEChannelID": "WALLE_CHANNEL_ID",
+    "nowPlayingMessageID": "NOWPLAYING_MESSAGE_ID",
+    "songLeaderboardMessageID": "SONGLEADERBOARD_MESSAGE_ID",
+    "djLeaderboardMessageID": "DJLEADERBOARD_MESSAGE_ID",
+    "hallOfBDCChannelID": "HALLOFBDC_CHANNEL_ID",
+    "voiceStatMessageID": "VOICESTAT_MESSAGE_ID",
+    "BDCGuildID": "GUILD_ID",
+    "botOwnerID": "YOUR_DISCORD_ID",
+    "botToken": "YOUR_BOT_TOKEN",
+    "prefix": "PREFIX",
+    "botID": "BOT_ID",
+    "maxPlaylistSongs": 1500,
+    "DBLogging": false,
+    "DBPath": "/database/WALLE.db",
+    "excludedVoiceChannelIds": ["AFKCHANNEL_ID"]
+}
+```
+## Starting the container
+WALL-E gets automatically builded and deployed on [Docker Hub](https://hub.docker.com/r/giyomoon/wall-e) and can be pulled from there.
 
-Syntax: `$`
+The container can be run with the following command:
+```bash
+docker run -d -v PATH_TO_YOUR_CONFIG_FOLDER:/wall-e/config -v PATH_TO_YOUR_DATABASE_FOLDER:/database --name WALL-E giyomoon/wall-e
+```
 
-### Information
+For example:
+```bash
+docker run -d -v /srv/config:/wall-e/config -v /srv/database:/database --name WALL-E giyomoon/wall-e
+```
+### Volume folders
+`/srv/config` is a folder which includes the `config.json` file.
 
-- `help` - Displays all available commands.
-- `search` - Searches through the song database of WALL-E.
-- `stats` - Some noice stats.
-
-### Music
-
-- `play` - Play any youtube song.
-- `playnow` - Play any youtube song. (At first place of queue)
-- `clear` - Clears the entire queue.
-- `leave` - Leaves the voice channel and clears the queue.
-- `loop` - Loops current song or queue.
-- `pause` - Pauses or resumes the music.
-- `random` - Plays a given amount of random songs, picked from the songs database.
-- `shuffle` - Shuffles the music queue.
-- `skip` - Skips one song.
-
-### Playlist
-
-- `playlist` - Manage a playlist.
-- `playlists` - Lists all created playlists.
-- `playlistplay` - Adds the songs of a playlist to the queue.
-- `playlistcreate` - Creates a new, empty playlist.
-- `playlistadd` - Add a song to a playlist.
-- `playlistrandom` - Plays a given amount of random songs, picked from any playlist.
-- `playlistload` - Save an entire playlist.
-
-### Admin
-
-- `restart` - Gracefully restarts the bot.
-- `eval` - Eval command.
-
-#
-
-> Pridefully serving the BDC-Server.
+`/srv/database` is the folder which includes the sqlite database file.

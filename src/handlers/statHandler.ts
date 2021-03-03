@@ -4,7 +4,6 @@ import ns from 'node-schedule';
 import moment from 'moment';
 
 import { VoiceStat } from '../entities/voiceStat';
-import config from '../config';
 import { WALLEBot } from '../bot';
 
 export class StatHandler {
@@ -27,9 +26,9 @@ export class StatHandler {
         ns.scheduleJob('0 * * * * *', () => {
             const voiceChannels = this._client.channels.cache.array().filter((c: any) => {
                 return c.guild &&
-                    c.guild.id === config.BDCGuildID &&
+                    c.guild.id === this._botClient.getConfig().BDCGuildID &&
                     c.type === 'voice' &&
-                    !config.excludedVoiceChannelIds.includes(c.id);
+                    !this._botClient.getConfig().excludedVoiceChannelIds.includes(c.id);
             });
             for (const c of voiceChannels) {
                 const voiceChannel = c as VoiceChannel;

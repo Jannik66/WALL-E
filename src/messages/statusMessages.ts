@@ -5,7 +5,6 @@ import schedule, { Job } from 'node-schedule';
 // @ts-ignore
 import progress from 'progress-string';
 
-import config from '../config';
 import { BotClient, QueueSong } from '../customInterfaces';
 import { MusicQueue } from '../audio/musicQueue';
 import { UserSong } from '../entities/userSong';
@@ -67,15 +66,15 @@ export class StatusMessages {
     public async afterInit() {
         this._listenToQueue();
 
-        this._dashboardChannel = this._client.channels.cache.get(config.dashboardChannelID) as TextChannel;
-        this._hallOfBDCChannel = this._client.channels.cache.get(config.hallOfBDCChannelID) as TextChannel;
+        this._dashboardChannel = this._client.channels.cache.get(this._botClient.getConfig().dashboardChannelID) as TextChannel;
+        this._hallOfBDCChannel = this._client.channels.cache.get(this._botClient.getConfig().hallOfBDCChannelID) as TextChannel;
 
         await this._dashboardChannel.messages.fetch();
         await this._hallOfBDCChannel.messages.fetch();
-        this._nowPlayingMessage = this._dashboardChannel.messages.cache.get(config.nowPlayingMessageID);
-        this._songsLeaderboardMessage = this._dashboardChannel.messages.cache.get(config.songLeaderboardMessageID);
-        this._djsLeaderboardMessage = this._dashboardChannel.messages.cache.get(config.djLeaderboardMessageID);
-        this._voiceStatMessage = this._hallOfBDCChannel.messages.cache.get(config.voiceStatMessageID);
+        this._nowPlayingMessage = this._dashboardChannel.messages.cache.get(this._botClient.getConfig().nowPlayingMessageID);
+        this._songsLeaderboardMessage = this._dashboardChannel.messages.cache.get(this._botClient.getConfig().songLeaderboardMessageID);
+        this._djsLeaderboardMessage = this._dashboardChannel.messages.cache.get(this._botClient.getConfig().djLeaderboardMessageID);
+        this._voiceStatMessage = this._hallOfBDCChannel.messages.cache.get(this._botClient.getConfig().voiceStatMessageID);
 
         this._scheduleVoiceStatMsgUpdate();
     }

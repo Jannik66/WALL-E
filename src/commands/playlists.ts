@@ -1,7 +1,6 @@
 import { Message, Client, MessageEmbed } from 'discord.js';
 import moment from 'moment';
 
-import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
 import { Playlist } from '../entities/playlist';
@@ -55,7 +54,7 @@ export default class playlistsCommand implements BotCommand {
     }
 
     private _sendEmbedMessage(msg: Message, embed: MessageEmbed) {
-        if (msg.channel.id === config.wallEChannelID) {
+        if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
             msg.channel.send(embed);
         } else {
             msg.delete();

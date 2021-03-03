@@ -5,7 +5,6 @@ var ytpl = require('ytpl');
 import progress from 'progress-string';
 import schedule from 'node-schedule';
 
-import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
 import { PlaylistSong } from '../entities/playlistSong';
@@ -15,7 +14,7 @@ export default class playlistLoadCommand implements BotCommand {
         id: 20,
         name: 'playlistload',
         category: 'Playlist',
-        description: `Save an entire playlist. (Limit: ${config.maxPlaylistSongs} songs :P)`,
+        description: `Save an entire playlist. (Limit: ${this._botClient.getConfig().maxPlaylistSongs} songs :P)`,
         argsRequired: true,
         admin: false,
         aliases: ['pload'],
@@ -41,7 +40,7 @@ export default class playlistLoadCommand implements BotCommand {
             this._sendMessage(msg, `:no_entry_sign: ${msg.author.toString()}, please provide a valid youtube playlist link/id.`);
             return;
         }
-        const ytPlaylist = await ytpl(args[1], { limit: config.maxPlaylistSongs });
+        const ytPlaylist = await ytpl(args[1], { limit: this._botClient.getConfig().maxPlaylistSongs });
 
         if (playlistName.match(/^[0-9]*$/)) {
             this._sendMessage(msg, `:x: ${msg.author.toString()}, the playlist can't be a number`);
@@ -118,7 +117,7 @@ export default class playlistLoadCommand implements BotCommand {
     }
 
     private _sendMessage(msg: Message, text: string) {
-        if (msg.channel.id === config.wallEChannelID) {
+        if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
             msg.channel.send(text);
         } else {
             msg.delete();

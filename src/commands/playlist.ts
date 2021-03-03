@@ -1,7 +1,6 @@
 import { Message, Client, MessageEmbed, MessageReaction, User, CollectorFilter, TextChannel } from 'discord.js';
 import moment from 'moment';
 
-import config from '../config';
 import { BotCommand, BotClient } from '../customInterfaces';
 import { Logger } from '../messages/logger';
 import { Playlist } from '../entities/playlist';
@@ -331,7 +330,7 @@ export default class playlistCommand implements BotCommand {
     }
 
     private _sendMessage(msg: Message, text: string) {
-        if (msg.channel.id === config.wallEChannelID) {
+        if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
             msg.channel.send(text);
         } else {
             msg.delete();

@@ -1,5 +1,5 @@
-node_modules
-dist
-src/config.ts
-database
-audioStream
+/node_modules
+/dist
+/src/config
+/database
+/audioStream

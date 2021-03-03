@@ -1,6 +1,5 @@
 import { Message, Client } from 'discord.js';
 import { BotClient } from '../customInterfaces';
-import config from '../config';
 
 export default class messageListener {
 
@@ -12,7 +11,7 @@ export default class messageListener {
         this._client = this._botClient.getClient();
 
         // get prefix from config
-        this._prefix = config.prefix;
+        this._prefix = this._botClient.getConfig().prefix;
     }
 
     public async evalMessage(msg: Message) {
@@ -35,7 +34,7 @@ export default class messageListener {
         // return if no command was found.
         if (!command) return;
 
-        if (command.information.admin && !(msg.author.id === config.botOwnerID)) {
+        if (command.information.admin && !(msg.author.id === this._botClient.getConfig().botOwnerID)) {
             this._botClient.getLogger().logError(msg.author.id, `:no_entry_sign: Only Jannik66 can execute this command.`);
             msg.delete();
             return;
@@ -54,7 +53,7 @@ export default class messageListener {
                 reply += `\n\`${this._prefix}${example}\``;
             }
 
-            if (msg.channel.id === config.wallEChannelID) {
+            if (msg.channel.id === this._botClient.getConfig().wallEChannelID) {
                 msg.channel.send(reply);
             } else {
                 this._botClient.getLogger().logError(msg.author.id, reply);

@@ -2,7 +2,6 @@ import { Client, TextChannel, Message, MessageEmbed, User } from 'discord.js';
 import { Connection } from 'typeorm';
 import moment from 'moment';
 
-import config from '../config';
 import { BotClient, QueueSong } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
 import { Song } from '../entities/song';
@@ -179,7 +178,7 @@ export class Logger {
     }
 
     public afterInit() {
-        this._logChannel = this._client.channels.cache.get(config.logChannelID) as TextChannel;
+        this._logChannel = this._client.channels.cache.get(this._botClient.getConfig().logChannelID) as TextChannel;
     }
 
 }

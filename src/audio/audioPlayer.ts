@@ -8,7 +8,6 @@ import { BotClient, QueueSong } from '../customInterfaces';
 import { StatusMessages } from '../messages/statusMessages';
 import { Logger } from '../messages/logger';
 import { MusicQueue } from './musicQueue';
-import config from '../config';
 
 export class AudioPlayer {
 
@@ -83,8 +82,8 @@ export class AudioPlayer {
             msg.guild.member(this._client.user).voice.channel.leave();
             this._logger.logLeave(msg.author);
         } else {
-            if (this._client.guilds.cache.get(config.BDCGuildID).member(this._client.user).voice.channel) {
-                this._client.guilds.cache.get(config.BDCGuildID).member(this._client.user).voice.channel.leave();
+            if (this._client.guilds.cache.get(this._botClient.getConfig().BDCGuildID).member(this._client.user).voice.channel) {
+                this._client.guilds.cache.get(this._botClient.getConfig().BDCGuildID).member(this._client.user).voice.channel.leave();
                 this._logger.logLeave(this._client.user);
             }
         }

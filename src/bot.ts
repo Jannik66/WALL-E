@@ -1,7 +1,6 @@
 import { Client, Collection, Message } from 'discord.js';
 import fs from 'fs';
 
-import config from './config';
 import { BotCommand, BotClient } from './customInterfaces';
 import { BotDatabase } from './database';
 
@@ -14,6 +13,11 @@ import { MusicQueue } from './audio/musicQueue';
 import { StatusMessages } from './messages/statusMessages';
 import { Logger } from './messages/logger';
 import { StatHandler } from './handlers/statHandler';
+
+import { BotConfig } from './customInterfaces';
+
+// @ts-ignore
+import config from './config/config.json';
 
 export class WALLEBot implements BotClient {
     // Discord Client of the Bot
@@ -51,9 +55,8 @@ export class WALLEBot implements BotClient {
         });
 
         // init database connection
-        await new BotDatabase().initConnection().then((botDB) => {
-            this._botDB = botDB;
-        });
+        this._botDB = new BotDatabase(this);
+        await this._botDB.initConnection();
 
         // create audioPlayer, logger and statusMessages
         // keep this order, else the code will throw runtime errors
@@ -115,13 +118,17 @@ export class WALLEBot implements BotClient {
     // load all commands
     private loadCommands() {
         this._commands = new Collection();
-        const COMMANDFILES = fs.readdirSync(`${config.rootPath}/commands`).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
+        const COMMANDFILES = fs.readdirSync(`./commands`).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
 
         for (const file of COMMANDFILES) {
             const COMMAND = require(`./commands/${file}`).default;
             const commandInstance = new COMMAND(this);
             this._commands.set(commandInstance.information.name.toLowerCase(), commandInstance);
         }
+    }
+
+    public getConfig(): BotConfig {
+        return config;
     }
 
     // methods which need a logged in client. Call after bot is ready (called by ready listener)
