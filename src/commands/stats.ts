@@ -84,9 +84,9 @@ export default class statsCommand implements BotCommand {
         statEmbed.addField(`:stopwatch: Uptime`, `${this._formatTime(process.uptime())}`, true);
         statEmbed.addField(`:minidisc: Used memory`, `${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} mb`, true);
 
-        const databaseStats = fs.statSync('./database/WALLE.db');
-        const fileSize = databaseStats.size / 1000;
-        statEmbed.addField(':card_box: Database Size', `${fileSize.toFixed(1)} kb`, true);
+        const databaseStats = fs.statSync(this._botClient.getConfig().DBPath);
+        const fileSize = databaseStats.size / 1000 / 1000;
+        statEmbed.addField(':card_box: Database Size', `${fileSize.toFixed(1)} mb`, true);
 
         statEmbed.addField(`<:djs:669263957847965729> Discord.js Version`, `v${version}`, true);
         statEmbed.addField(`<:nodejs:669263936998342716> Node.js Version`, `${process.version}`, true);

@@ -54,7 +54,7 @@ docker run -d -v PATH_TO_YOUR_CONFIG_FOLDER:/wall-e/config -v PATH_TO_YOUR_DATAB
 
 For example:
 ```bash
-docker run -d -v /srv/config:/wall-e/config -v /srv/database:/database --name WALL-E giyomoon/wall-e
+docker run -d -v /srv/data/wall-e/config:/wall-e/config -v /srv/data/wall-e/database:/database --name WALL-E giyomoon/wall-e
 ```
 ### Volume folders
 `/srv/config` is a folder which includes the `config.json` file.
