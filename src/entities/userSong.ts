@@ -8,10 +8,10 @@ export class UserSong {
     
     @Column('datetime', { nullable: true}) timestamp: Date;
     
-    @ManyToOne(type => DBUser)
+    @ManyToOne(type => DBUser, { onDelete: 'CASCADE'})
     user: DBUser;
 
-    @ManyToOne(type => Song)
+    @ManyToOne(type => Song, { onDelete: 'CASCADE'})
     song: Song;
 
 }
