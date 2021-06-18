@@ -14,7 +14,7 @@ export default class playlistLoadCommand implements BotCommand {
         id: 20,
         name: 'playlistload',
         category: 'Playlist',
-        description: `Save an entire playlist. (Limit: ${this._botClient.getConfig().maxPlaylistSongs} songs :P)`,
+        description: `Save an entire playlist. (Limit: 1500 songs :P)`,
         argsRequired: true,
         admin: false,
         aliases: ['pload'],
