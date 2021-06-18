@@ -180,7 +180,7 @@ export class AudioPlayer {
             let interval = setInterval(async () => {
                 if (audioStream.bytesWritten > 1) {
                     clearInterval(interval);
-                    await new Promise(done => setTimeout(done, 500));
+                    await new Promise(done => setTimeout(done, 1000));
                     done();
                 }
             }, 100);
@@ -188,7 +188,7 @@ export class AudioPlayer {
 
         // read Stream from audioStream file and play it
         this._dispatcher = this._connection.play(fs.createReadStream('audioStream'), {
-            bitrate: this._connection.channel.bitrate / 1000,
+            bitrate: this._connection.channel.bitrate / 500,
             volume: 0.1
         });
 
